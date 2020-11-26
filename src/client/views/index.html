@@ -8,27 +8,35 @@
 </head>
 
 <body>
-    <header>
-        <p><a class="nav__item" href="index.html">Home</a></p>
-    </header>
+    <div class="grid__container">
+        <header>
+            <p><a class="nav__item" href="index.html">Home</a></p>
+        </header>
 
-    <main>
-        <h1>Travel Planner</h1>
-        <form>
-            <label for="location">Where do you want to go?</label>
-            <input type="text" name="location" id="location" placeholder="Put the desired location here">
-            <label for="start-date">When are you going?</label>
-            <input type="date" id="start-date">
-            <label for="end-date">Until when?</label>
-            <input type="date" id="end-date">
-        </form>
-        <div id="results"></div>
+        <main>
+            <div class="main__form">
+                <h1>Travel Planner</h1>
+                <form class="location__form">
+                    <label for="location">Where do you want to go?</label>
+                    <input type="text" name="location" id="location" placeholder="Put the desired location here">
+                </form>
+                <form class="dates__form">
+                    <label for="start-date">When are you going?</label>
+                    <input type="date" id="start-date">
+                </form>
+                <form class="dates__form">
+                    <label for="end-date">Until when?</label>
+                    <input type="date" id="end-date">
+                </form>
+            </div>
+            <div id="results" class="main__results"></div>
+        </main>
         <footer>
             <h2>Add me!</h2>
             <p><a aria-label="Add me on GitHub" href="https://github.com/Bmg1612">Github</a></p>
             <p><a aria-label="Add me on Linkedin" href="https://www.linkedin.com/in/bruno-gurgel/">Linkedin</a></p>
         </footer>
-    </main>
+    </div>
 </body>
 
 </html>
