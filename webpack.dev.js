@@ -12,8 +12,8 @@ module.exports = {
     },
     stats: 'verbose',
     output: {
-    filename: 'main.js',
-    path: path.resolve(__dirname, 'dist'),
+        filename: 'bundle.min.js',
+        path: path.resolve(__dirname, 'dist'),
     },
     module: {
         rules: [
@@ -25,6 +25,19 @@ module.exports = {
             {
                 test: /\.scss$/,
                 use: [ 'style-loader', 'css-loader', 'sass-loader' ]
+            },
+            {
+                test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
+                use:
+                [
+                  {
+                    loader: 'file-loader',
+                    options: {
+                      name: '[name].[ext]',
+                      outputPath: 'fonts/'
+                    }
+                  }
+                ]
             }
         ]
     },
