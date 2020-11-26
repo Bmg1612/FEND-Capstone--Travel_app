@@ -1,0 +1,39 @@
+const path = require("path")
+const express = require("express")
+const bodyParser = require("body-parser")
+const cors = require("cors");
+const { url } = require("inspector");
+const { urlencoded } = require("body-parser");
+const dotenv = require("dotenv")
+dotenv.config()
+
+// Express to run server and routes
+// Start up an instance of app
+const app = express()
+// Cors for cross origin allowance
+app.use(cors())
+// Configuring express to use body-parser as middle-ware.
+app.use(bodyParser.json())
+app.use(urlencoded({
+    extended: true
+}))
+
+// Initialize the main project folder
+app.use(express.static('dist'))
+
+console.log(__dirname)
+
+app.get('/', (req, res) => res.sendFile(path.resolve('src/client/views/index.html')) )
+
+// Setup empty JS object to act as endpoint for all routes
+const dataObject = {};
+
+// Spin up the server
+app.listen(8081, () => console.log('App is listening on port 8081') )
+
+// Sending the API key to the client
+app.get('/api', (req, res) => res.send({key: apiKey}) )
+
+// Sending all the content of project end point to the client
+app.get('/all', (req, res) => res.send(dataObject) )
+
