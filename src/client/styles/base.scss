@@ -1,0 +1,119 @@
+// Variables
+$primary-font: "Open Sans Condensed", sans-serif;
+$heading-font: "Pacifico", cursive;
+$primary-color: #1f2932;
+
+//Mixins for @media purposes
+@mixin for-phone-only {
+  @media screen and (max-width: 599px) {
+    @content;
+  }
+}
+
+@mixin for-tablet-only {
+  @media screen and (min-width: 600px) and (max-width: 900px) {
+    @content;
+  }
+}
+
+//ERASE IF NOT USED
+
+// @mixin for-desktop-only {
+//   @media screen and (min-width: 901px) {
+//     @content;
+//   }
+// }
+
+@mixin for-printing-only {
+  @media print {
+    @content;
+  }
+}
+
+// Placeholders
+%form {
+  font-size: 2rem;
+  text-align: center;
+}
+%input {
+  text-align: center;
+  color: #abe9ca;
+  &::placeholder {
+    color: #abe9ca;
+    opacity: 0.5;
+  }
+}
+
+body {
+  font-family: $primary-font;
+  color: $primary-color;
+  font-size: 16px;
+}
+
+header {
+  p {
+    text-align: center;
+    font-size: 2.5rem;
+    a {
+      color: $primary-color;
+    }
+    @include for-phone-only {
+      font-size: 2rem;
+    }
+  }
+}
+
+main {
+  .main__form {
+    h1 {
+      font-family: $heading-font;
+      text-align: center;
+      font-size: 5rem;
+      text-decoration: underline;
+      @include for-phone-only {
+        font-size: 4rem;
+      }
+    }
+    .location__form {
+      @extend %form;
+      @include for-printing-only {
+        //   width: 50%;
+        font-size: 1.5rem;
+      }
+    }
+
+    .dates__form {
+      @extend %form;
+      @include for-printing-only {
+        font-size: 1.5rem;
+      }
+    }
+  }
+  .main__results {
+    h2 {
+      text-align: center;
+      font-family: $heading-font;
+      font-size: 3rem;
+      text-decoration: underline;
+      margin: 0px;
+      @include for-phone-only {
+        font-size: 2.5rem;
+      }
+    }
+  }
+}
+
+footer {
+  text-align: center;
+  border-top: 2px dotted #000000;
+  h2 {
+    font-family: $heading-font;
+    font-size: 2rem;
+    text-decoration: underline;
+    margin: 0 0 10px 0;
+  }
+  a {
+    color: $primary-color;
+    font-size: 1.5rem;
+  }
+}
