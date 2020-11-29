@@ -1,11 +1,14 @@
 const getTravelResults = document.addEventListener('DOMContentLoaded', async () => {
     let button = document.getElementById('button');
+    // Initializing empty object to retrieve geonames data
     let geonamesData = {};
+    //Initializing empty string for the API keys fetched from the server
     let apiKey = "";
 
     button.addEventListener('click', async () => {
         let locationInput = document.getElementById('location').value;
-
+        
+        // Main function
         geonamesApi()
         .then(geonamesData =>  weatherbitApi())
         .then(apiResponse => pixabayApi())
@@ -19,7 +22,8 @@ const getTravelResults = document.addEventListener('DOMContentLoaded', async () 
                 geonamesData = {
                     latitude: data.geonames[0].lat,
                     longitude: data.geonames[0].lng
-                }    
+                }
+                console.log("::: Fetched data from Geonames API :::")    
                 return geonamesData;
             } catch(error) {
                 Alert("There was an error:", error.message)
@@ -27,12 +31,13 @@ const getTravelResults = document.addEventListener('DOMContentLoaded', async () 
         } 
         
         async function weatherbitApi () {
+            // Getting API key from the server
             async function getWeatherKey () {
                 let req = await fetch ('http://localhost:8081/api');
                 try {
                     let data = await req.json();
                     apiKey = data.weatherKey;
-                    console.log(apiKey);
+                    console.log("::: Got the key of Weatherbit API :::")
                     return apiKey;
                 } catch (error) {
                     alert("There was an error:", error.message);
@@ -49,7 +54,7 @@ const getTravelResults = document.addEventListener('DOMContentLoaded', async () 
                 let res = await fetch(url);
                 try {
                     let apiResponse = await res.json();
-                    console.log("::: Response Sent :::");
+                    console.log("::: Fetched data from Weatherbit API :::");
                     console.log(apiResponse)
                     return apiResponse;
                 } catch (error) {
@@ -60,12 +65,13 @@ const getTravelResults = document.addEventListener('DOMContentLoaded', async () 
         }
 
         async function pixabayApi () {
+            // Getting API key from the server
             async function getPhotoKey () {
                 let req = await fetch ('http://localhost:8081/api');
                 try {
                     let data = await req.json();
                     apiKey = data.photoKey;
-                    console.log(apiKey);
+                    ("::: Got the key of Pixabay API :::")
                     return apiKey;
                 } catch (error) {
                     alert("There was an error:", error.message);
@@ -79,7 +85,7 @@ const getTravelResults = document.addEventListener('DOMContentLoaded', async () 
                 let res = await fetch(url);
                 try {
                     let apiResponse = await res.json();
-                    console.log("::: Response Sent :::");
+                    console.log("::: Fetched data from Pixabay API :::");
                     console.log(apiResponse)
                     return apiResponse;
                 } catch (error) {
