@@ -43,3 +43,15 @@ app.get('/api', (req, res) => res.send({
 // Sending all the content of project end point to the client
 app.get('/all', (req, res) => res.send(dataObject) )
 
+app.post('/addText', (req,res)  => {
+    dataObject['city_name'] = req.body.city_name,
+    dataObject['country_code'] = req.body.country_code,
+    dataObject['temperature'] = req.body.temp,
+    dataObject['app_temp'] = req.body.app_temp,
+    dataObject['description'] = req.body.description
+
+    console.log(dataObject);
+
+    res.send(dataObject);    
+} )
+
