@@ -32,9 +32,13 @@ const dataObject = {};
 app.listen(8081, () => console.log('App is listening on port 8081') )
 
 weatherBitKey = process.env.WEATHERBIT_API_KEY;
+pixabayKey = process.env.PIXABAY_API_KEY;
 
 // Sending the API key to the client
-app.get('/api', (req, res) => res.send({key: weatherBitKey}) )
+app.get('/api', (req, res) => res.send({
+    weatherKey: weatherBitKey,
+    photoKey:  pixabayKey
+}) )
 
 // Sending all the content of project end point to the client
 app.get('/all', (req, res) => res.send(dataObject) )
