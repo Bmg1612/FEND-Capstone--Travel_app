@@ -91,13 +91,22 @@ main {
   }
   .main__results {
     h2 {
+      display: block;
       text-align: center;
       font-family: $heading-font;
       font-size: 3rem;
       text-decoration: underline;
-      margin: 0px;
+      margin: 0 0 50px 0;
+      padding-bottom: 90px;
       @include for-phone-only {
         font-size: 2.5rem;
+      }
+    }
+    .results__text {
+      font-size: 1.5rem;
+      a {
+        font-size: 1rem;
+        font-style: italic;
       }
     }
   }

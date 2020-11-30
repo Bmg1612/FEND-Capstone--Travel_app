@@ -124,7 +124,8 @@ const getTravelResults = document.addEventListener('DOMContentLoaded', async () 
             let resultsText = document.querySelector('.results__text');
 
             resultsImage.innerHTML = `<img src="${newData.photo}" alt="Photo of ${newData.city_name} from Pixabay">`;
-            resultsText.innerHTML = `<p>The weather for ${newData.city_name}/${newData.country_code} on the desired  date is going to be ${newData.temperature}ºC with ${newData.description.toLowerCase()} and apparent temperature of ${newData.app_temp}ºC.</p>`;
+            resultsText.innerHTML = `<p>The weather for ${newData.city_name}/${newData.country_code} on the desired  date is going to be ${newData.temperature}ºC with ${newData.description.toLowerCase()} and apparent temperature of ${newData.app_temp}ºC.</p>
+            <p><a href="https://www.weatherbit.io/" target="_blank">Source</a></p>`;
             resultsDiv.style.display = "grid";                        
             resultsDiv.scrollIntoView({behavior: "smooth"});
 
