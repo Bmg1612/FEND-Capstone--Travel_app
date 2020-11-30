@@ -96,14 +96,14 @@ main {
       font-family: $heading-font;
       font-size: 3rem;
       text-decoration: underline;
-      margin: 0 0 50px 0;
-      padding-bottom: 90px;
+      margin: 0px;
       @include for-phone-only {
         font-size: 2.5rem;
       }
     }
     .results__text {
       font-size: 1.5rem;
+      border-left: 2px inset #ccc;
       a {
         font-size: 1rem;
         font-style: italic;
@@ -114,7 +114,7 @@ main {
 
 footer {
   text-align: center;
-  border-top: 2px dotted #000000;
+  border-top: 2px inset #ccc;
   h2 {
     font-family: $heading-font;
     font-size: 2rem;

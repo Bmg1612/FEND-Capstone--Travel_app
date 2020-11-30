@@ -16,12 +16,12 @@ body {
 .grid__container {
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: 10% 80% 10%;
+  grid-template-rows: 5% 85% 10%;
   grid-template-areas:
     "nav"
     "main"
     "footer";
-  gap: 20px;
+  gap: 5px;
 }
 
 header {
@@ -33,7 +33,7 @@ header {
   p {
     width: 100%;
     a {
-      padding: 10px;
+      padding: 5px;
       &:hover {
         background-color: #b4b9bd;
         border-radius: 25%;
@@ -46,7 +46,6 @@ main {
   grid-area: main;
   display: flex;
   flex-direction: column;
-  gap: 10px;
   width: 100%;
   .main__form {
     h1 {
@@ -100,27 +99,25 @@ main {
     }
   }
   .main__results {
-    display: none;
+    display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 10% 90%;
+    grid-template-rows: 17% 83%;
     grid-template-areas:
       "heading heading"
       "image   text";
-    border-top: 2px dotted #000000;
+    border-top: 2px inset #ccc;
     h2 {
       grid-area: heading;
       background-color: #e3f8ed;
     }
     .results__image {
       grid-area: image;
-      width: 100%;
       height: 100%;
-      margin-top: 20px;
+      width: 100%;
     }
     .results__text {
       grid-area: text;
       padding: 10px;
-      margin-top: 20px;
     }
   }
 }
