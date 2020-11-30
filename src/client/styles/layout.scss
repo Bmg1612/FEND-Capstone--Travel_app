@@ -99,7 +99,7 @@ main {
     }
   }
   .main__results {
-    display: grid;
+    display: none;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 17% 83%;
     grid-template-areas:
