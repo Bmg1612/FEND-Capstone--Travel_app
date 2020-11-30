@@ -40,9 +40,6 @@ app.get('/api', (req, res) => res.send({
     photoKey:  pixabayKey
 }) )
 
-// Sending all the content of project end point to the client
-app.get('/all', (req, res) => res.send(dataObject) )
-
 app.post('/addText', (req,res)  => {
     dataObject['city_name'] = req.body.city_name,
     dataObject['country_code'] = req.body.country_code,
