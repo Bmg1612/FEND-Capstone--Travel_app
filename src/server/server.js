@@ -49,6 +49,7 @@ app.post('/addText', (req,res)  => {
     dataObject['temperature'] = req.body.temp,
     dataObject['app_temp'] = req.body.app_temp,
     dataObject['description'] = req.body.description
+    dataObject['photo'] = req.body.photo
 
     console.log(dataObject);
 

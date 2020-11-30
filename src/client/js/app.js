@@ -11,20 +11,22 @@ const getTravelResults = document.addEventListener('DOMContentLoaded', async () 
         // Initializing empty objects to retrieve API data
         let apiResponse = {};
         let weatherResponse = {};
+        let photoResponse = {};
 
         
         // Main function
         geonamesApi()
         .then(geonamesData =>  weatherbitApi())
-        .then(weatherResponse =>   postData('/addText', {
+        .then(weatherResponse => pixabayApi())
+        .then(photoResponse =>   postData('/addText', {
                 city_name: weatherResponse.city_name,
                 country_code: weatherResponse.country_code,
                 temp: weatherResponse.temp,
                 app_temp: weatherResponse.app_temp,
-                description: weatherResponse.weather.description
+                description: weatherResponse.weather.description,
+                photo: photoResponse
             })
         )    
-        .then(pixabayApi())
 
         async function geonamesApi() {
             let url = `http://api.geonames.org/searchJSON?q=${locationInput}&maxRows=1&username=bmg1612`;
@@ -52,7 +54,7 @@ const getTravelResults = document.addEventListener('DOMContentLoaded', async () 
                 let data = await req.json();
                 apiKey = data.weatherKey;
                 console.log("::: Got the key of Weatherbit API :::")
-                //Fetching data
+                // Fetching data
                 let url = `https://api.weatherbit.io/v2.0/current?lat=${latitude}&lon=${longitude}&key=${apiKey}`;
                 let res = await fetch(url);
                 apiResponse = await res.json();
@@ -66,32 +68,33 @@ const getTravelResults = document.addEventListener('DOMContentLoaded', async () 
 
         async function pixabayApi () {
             // Getting API key from the server
-            async function getPhotoKey () {
-                let req = await fetch ('http://localhost:8081/api');
-                try {
-                    let data = await req.json();
-                    apiKey = data.photoKey;
-                    ("::: Got the key of Pixabay API :::")
-                    return apiKey;
-                } catch (error) {
-                    alert("There was an error:", error.message);
-                }
-            }
-
-            getPhotoKey()
-            .then (apiKey = async () => {
-                let url = `https://pixabay.com/api/?key=${apiKey}&q=${locationInput}&image_type=photo`;
-                console.log(url)
+            let req = await fetch ('http://localhost:8081/api');
+            try {
+                let data = await req.json();
+                apiKey = data.photoKey;
+                console.log("::: Got the key of Pixabay API :::")
+                // Fetching data
+                let url = `https://pixabay.com/api/?key=${apiKey}&q=${weatherResponse.city_name}&image_type=photo`;
                 let res = await fetch(url);
-                try {
-                    let photoResponse = await res.json();
-                    console.log("::: Fetched data from Pixabay API :::");
+                apiResponse = await res.json();
+                console.log("::: Fetched data from Pixabay API :::");
+                console.log(apiResponse);
+                // If it is a big city, there will be 20 'hits' photos
+                // Then it will be randomly chosen
+                if (apiResponse.hits.length === 20) {
+                    photoResponse = apiResponse.hits[Math.floor(Math.random() * 21)].webformatURL;
                     console.log(photoResponse)
                     return photoResponse;
-                } catch (error) {
-                    alert("There was an error:", error.message);
+                // If it is a smaller city with less than 20 hits
+                // The first one is chosen    
+                } else {
+                    photoResponse = apiResponse.hits[0].webformatURL;
+                    console.log(photoResponse)
+                    return photoResponse;
                 }
-            })
+            } catch (error) {
+                alert("There was an error:", error.message);
+            }
         }
 
         async function postData (url = '', data = {}) {
