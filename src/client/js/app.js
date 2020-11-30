@@ -1,7 +1,6 @@
 const getTravelResults = document.addEventListener('DOMContentLoaded', async () => {
     let button = document.getElementById('button');
-    // Initializing empty object to retrieve geonames data
-    let geonamesData = {};
+    
     //Initializing empty string for the API keys fetched from the server
     let apiKey = "";
     
@@ -9,9 +8,11 @@ const getTravelResults = document.addEventListener('DOMContentLoaded', async () 
         let locationInput = document.getElementById('location').value;
 
         // Initializing empty objects to retrieve API data
+        let geonamesData = {};
         let apiResponse = {};
         let weatherResponse = {};
         let photoResponse = {};
+        let newData = {};
 
         
         // Main function
@@ -26,7 +27,8 @@ const getTravelResults = document.addEventListener('DOMContentLoaded', async () 
                 description: weatherResponse.weather.description,
                 photo: photoResponse
             })
-        )    
+        )
+        .then(newData => updateUI());
 
         async function geonamesApi() {
             let url = `http://api.geonames.org/searchJSON?q=${locationInput}&maxRows=1&username=bmg1612`;
@@ -108,12 +110,21 @@ const getTravelResults = document.addEventListener('DOMContentLoaded', async () 
             })
 
             try {
-                let newData = await res.json();
+                newData = await res.json();
                 console.log(newData);
                 return newData
             } catch(error) {
                 alert("There was an error:", error.message);
             }
+        }
+
+        async function updateUI () {
+            let resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `<img src="${newData.photo}" alt="Photo of ${newData.city_name} from Pixabay">
+                                    <p>The weather for ${newData.city_name}/${newData.country_code} on the desired date is going to be ${newData.temperature}ºC with ${newData.description.toLowerCase()} and apparent temperature of ${newData.app_temp}ºC.</p>`;
+            resultsDiv.style.display = "block";                        
+            resultsDiv.scrollIntoView({behavior: "smooth"});
+
         }
 
     })
