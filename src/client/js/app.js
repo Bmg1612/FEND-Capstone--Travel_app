@@ -47,8 +47,49 @@ const getTravelResults = document.addEventListener('DOMContentLoaded', async () 
         } 
         
         async function weatherbitApi () {
+            // Date input values
+            let startDate = document.getElementById('start-date').value;
+            let endDate = document.getElementById('end-date').value;
+
+            // Date input values transformed to last year
+            // For the case someone searches for a date after
+            // 16 days from now, which will be covered by
+            // historical fetch from weatherbit API
+            let convertedStartDate = new Date(startDate);
+            let convertedEndDate = new Date(endDate);
+            convertedStartDate.setMonth(convertedStartDate.getMonth()-12);
+            convertedEndDate.setMonth(convertedEndDate.getMonth()-12)
+
+            // Helper function to change the format from Date object to regular date
+            // As in 'Tue Dec 24 2019 21:00:00 GMT-0300' to => 2019-12-24
+            const changeFormat = (date = '') => {
+                let dd = String(date.getDate()).padStart(2, '0');
+                let mm = String(date.getMonth() + 1).padStart(2, '0'); //January is 0!
+                let yyyy = date.getFullYear();
+                date = `${yyyy}-${mm}-${dd}`;
+                return date;
+            }
+
+            //Changing the format
+            convertedStartDate = changeFormat(convertedStartDate);
+            convertedEndDate = changeFormat(convertedEndDate);
+
+            // Creating new date objects to simulate today, next week and 16 days from now
+            // Each one will call a certain part of the weatherbit API
+            let today = new Date();
+            let nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000 );
+            let twoWeeksFromNow = new Date(today.getTime() + 16 * 24 * 60 * 60 * 1000 );
+
+            //Formatting today's date
+            today = changeFormat(today);
+            //Formatting next weeks's date
+            nextWeek = changeFormat(nextWeek);
+            //Formatting 16 days from now
+            twoWeeksFromNow = changeFormat(twoWeeksFromNow);
+
             let latitude = geonamesData.latitude;
             let longitude = geonamesData.longitude;
+
 
             // Getting API key from the server
             let req = await fetch ('http://localhost:8081/api');
@@ -57,12 +98,56 @@ const getTravelResults = document.addEventListener('DOMContentLoaded', async () 
                 apiKey = data.weatherKey;
                 console.log("::: Got the key of Weatherbit API :::")
                 // Fetching data
-                let url = `https://api.weatherbit.io/v2.0/current?lat=${latitude}&lon=${longitude}&key=${apiKey}`;
-                let res = await fetch(url);
-                apiResponse = await res.json();
-                console.log("::: Fetched data from Weatherbit API :::");
-                weatherResponse = apiResponse.data[0];
-                return weatherResponse;
+
+                // If the trip is this week
+                if (startDate >= today && startDate < nextWeek ) {
+                    let url = `https://api.weatherbit.io/v2.0/current?lat=${latitude}&lon=${longitude}&key=${apiKey}`;
+                    let res = await fetch(url);
+                    apiResponse = await res.json();
+                    console.log("::: Fetched data from Weatherbit API :::");
+                    weatherResponse = apiResponse.data[0];
+                    return weatherResponse;
+                    // If the trip between next week and 16 days
+                } else if (startDate > nextWeek && startDate <= twoWeeksFromNow) {
+                    let url = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${latitude}&lon=${longitude}&key=${apiKey}`;
+                    let res = await fetch(url);
+                    apiResponse = await res.json();
+                    console.log("::: Fetched data from Weatherbit API :::");
+                    //Creating the object manually because the disposition of the response object is different
+                    weatherResponse = {
+                        city_name: apiResponse.city_name,
+                        country_code: apiResponse.country_code,
+                        //Getting the array n. 8 because it is on the middle of 16
+                        temp: apiResponse.data[8].temp,
+                        app_temp: ((apiResponse.data[8].app_max_temp + apiResponse.data[10].app_min_temp) /2).toFixed(1),
+                        weather: {
+                            description: apiResponse.data[8].weather.description
+                        }
+                    }
+                    return weatherResponse;
+                    //In case the trip is after 16 days from now
+                    //In this case, this API limits to one request per day in the free version
+                } else {
+                    let url = `https://api.weatherbit.io/v2.0/history/hourly?lat=${latitude}&lon=${longitude}&start_date=${convertedStartDate}&end_date=${convertedEndDate}&key=${apiKey}`;
+                    let res = await fetch(url);
+                    apiResponse = await res.json();
+                    console.log("::: Fetched data from Weatherbit API :::");
+                    console.log(apiResponse);
+                    //Creating the object manually because the disposition of the response object is different
+                    weatherResponse = {
+                        city_name: apiResponse.city_name,
+                        country_code: apiResponse.country_code,
+                        //Getting the array n. 8 because it is on the middle of 16
+                        temp: apiResponse.data.temp,
+                        //Simulating apparent temperature, since it is not given in this response
+                        app_temp: apiResponse.data.app_temp,
+                        weather: {
+                            description: apiResponse.data[8].weather.description
+                        }
+                    }
+                    console.log(weatherResponse)
+                    return weatherResponse;
+                }
             } catch (error) {
                 alert("There was an error:", error.message);
             }
@@ -126,7 +211,7 @@ const getTravelResults = document.addEventListener('DOMContentLoaded', async () 
                                     <img src="${newData.photo}" alt="Photo of ${newData.city_name} from Pixabay">     
                                     </div>;  
                                     <div class="results__text">
-                                    <p>The weather for ${newData.city_name}/${newData.country_code} on the desired  date is going to be ${newData.temperature}ºC with ${newData.description.toLowerCase()} and apparent temperature of ${newData.app_temp}ºC.</p>
+                                    <p>Typically, the weather for ${newData.city_name}/${newData.country_code} on the desired  date is ${newData.temperature}ºC with ${newData.description.toLowerCase()} and apparent temperature of ${newData.app_temp}ºC.</p>
                                     <p><a href="https://www.weatherbit.io/" target="_blank">Source</a></p>
                                     </div>`
             resultsDiv.style.display = "grid";                      
