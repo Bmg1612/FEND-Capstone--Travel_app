@@ -16,14 +16,6 @@ $primary-color: #1f2932;
   }
 }
 
-//ERASE IF NOT USED
-
-// @mixin for-desktop-only {
-//   @media screen and (min-width: 901px) {
-//     @content;
-//   }
-// }
-
 @mixin for-printing-only {
   @media print {
     @content;
@@ -34,8 +26,15 @@ $primary-color: #1f2932;
 %form {
   font-size: 2rem;
   text-align: center;
+  margin-top: 20px;
 }
 %input {
+  display: block;
+  text-align: center;
+  margin: 15px auto;
+  height: 30px;
+  border: 0px;
+  background-color: #2e3d49;
   text-align: center;
   color: #abe9ca;
   &::placeholder {
@@ -72,20 +71,6 @@ main {
       text-decoration: underline;
       @include for-phone-only {
         font-size: 4rem;
-      }
-    }
-    .location__form {
-      @extend %form;
-      @include for-printing-only {
-        //   width: 50%;
-        font-size: 1.5rem;
-      }
-    }
-
-    .dates__form {
-      @extend %form;
-      @include for-printing-only {
-        font-size: 1.5rem;
       }
     }
   }

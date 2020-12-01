@@ -16,19 +16,16 @@
         <main>
             <div class="main__form">
                 <h1>Travel Planner</h1>
-                <form class="location__form">
+                <form class="form">
                     <label for="location">Where do you want to go?</label>
-                    <input type="text" name="location" id="location" placeholder="Put the desired location here">
-                </form>
-                <form class="dates__form">
+                    <input type="text" name="location" id="location" class="location__input"
+                        placeholder="Put the desired location here" required>
                     <label for="start-date">When are you going?</label>
-                    <input type="date" id="start-date">
-                </form>
-                <form class="dates__form">
+                    <input type="date" id="start-date" class="dates__input" required>
                     <label for="end-date">Until when?</label>
-                    <input type="date" id="end-date">
+                    <input type="date" id="end-date" class="dates__input" required>
+                    <button type="submit" id="button">Send</button>
                 </form>
-                <button type="submit" id="button">Send</button>
             </div>
             <div id="results" class="main__results"></div>
         </main>

@@ -1,3 +1,38 @@
+form {
+  @extend %form;
+  display: flex;
+  flex-direction: column;
+
+  .location__input {
+    @extend %input;
+    width: 20%;
+    @include for-phone-only {
+      width: 70%;
+    }
+    @include for-tablet-only {
+      width: 40%;
+    }
+    @include for-printing-only {
+      width: 50%;
+      font-size: 1.5rem;
+    }
+  }
+  .dates__input {
+    @extend %input;
+    width: 10%;
+    @include for-phone-only {
+      width: 50%;
+    }
+    @include for-tablet-only {
+      width: 20%;
+    }
+    @include for-printing-only {
+      width: 25%;
+      font-size: 1.5rem;
+    }
+  }
+}
+
 button {
   @include for-printing-only {
     display: none;

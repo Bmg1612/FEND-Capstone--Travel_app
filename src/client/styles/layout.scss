@@ -51,52 +51,6 @@ main {
     h1 {
       margin: 0px;
     }
-    %form {
-      margin-top: 20px;
-    }
-    %input {
-      display: block;
-      text-align: center;
-      margin: 15px auto;
-      height: 30px;
-      border: 0px;
-      background-color: #2e3d49;
-    }
-
-    .location__form {
-      @extend %form;
-      input {
-        @extend %input;
-        width: 20%;
-        @include for-phone-only {
-          width: 70%;
-        }
-        @include for-tablet-only {
-          width: 40%;
-        }
-        @include for-printing-only {
-          width: 50%;
-        }
-      }
-    }
-
-    .dates__form {
-      @extend %form;
-      input {
-        @extend %input;
-        width: 10%;
-
-        @include for-phone-only {
-          width: 50%;
-        }
-        @include for-tablet-only {
-          width: 20%;
-        }
-        @include for-printing-only {
-          width: 25%;
-        }
-      }
-    }
   }
   .main__results {
     display: none;
