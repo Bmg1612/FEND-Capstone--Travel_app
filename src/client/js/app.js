@@ -1,10 +1,11 @@
 const getTravelResults = document.addEventListener('DOMContentLoaded', async () => {
-    let button = document.getElementById('button');
+    let form = document.querySelector('.form')
     
     //Initializing empty string for the API keys fetched from the server
     let apiKey = "";
     
-    button.addEventListener('click', async () => {
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
         let locationInput = document.getElementById('location').value;
 
         // Initializing empty objects to retrieve API data
@@ -14,10 +15,12 @@ const getTravelResults = document.addEventListener('DOMContentLoaded', async () 
         let photoResponse = {};
         let newData = {};
 
+        // Initializing variable
         let diffDays = 0;
 
-        
-        // Main function
+        /******************* 
+        MAIN FUNCTION
+        ******************/
         geonamesApi()
         .then(geonamesData =>  weatherbitApi())
         .then(weatherResponse => pixabayApi())
@@ -32,6 +35,10 @@ const getTravelResults = document.addEventListener('DOMContentLoaded', async () 
         )
         .then(newData => updateUI());
 
+
+        /******************* 
+        API FUNCTIONS
+        ******************/
         async function geonamesApi() {
             let url = `http://api.geonames.org/searchJSON?q=${locationInput}&maxRows=1&username=bmg1612`;
             let req = await fetch(url)
@@ -111,16 +118,8 @@ const getTravelResults = document.addEventListener('DOMContentLoaded', async () 
                 console.log("::: Got the key of Weatherbit API :::")
                 // Fetching data
 
-                // If the trip is this week
-                if (startDate >= today && startDate < nextWeek ) {
-                    let url = `https://api.weatherbit.io/v2.0/current?lat=${latitude}&lon=${longitude}&key=${apiKey}`;
-                    let res = await fetch(url);
-                    apiResponse = await res.json();
-                    console.log("::: Fetched data from Weatherbit API :::");
-                    weatherResponse = apiResponse.data[0];
-                    return weatherResponse;
-                    // If the trip between next week and 16 days
-                } else if (startDate > nextWeek && startDate <= twoWeeksFromNow) {
+                // If the trip between next week and 16 days
+                if (startDate > nextWeek && startDate <= twoWeeksFromNow) {
                     let url = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${latitude}&lon=${longitude}&key=${apiKey}`;
                     let res = await fetch(url);
                     apiResponse = await res.json();
@@ -139,7 +138,7 @@ const getTravelResults = document.addEventListener('DOMContentLoaded', async () 
                     return weatherResponse;
                     //In case the trip is after 16 days from now
                     //In this case, this API limits to one request per day in the free version
-                } else {
+                } else if (startDate > twoWeeksFromNow) {
                     let url = `https://api.weatherbit.io/v2.0/history/hourly?lat=${latitude}&lon=${longitude}&start_date=${lastYearStartDate}&end_date=${lastYearEndDate}&key=${apiKey}`;
                     let res = await fetch(url);
                     apiResponse = await res.json();
@@ -159,12 +158,19 @@ const getTravelResults = document.addEventListener('DOMContentLoaded', async () 
                     }
                     console.log(weatherResponse)
                     return weatherResponse;
+                    //If the trip is this week
+                } else {
+                    let url = `https://api.weatherbit.io/v2.0/current?lat=${latitude}&lon=${longitude}&key=${apiKey}`;
+                    let res = await fetch(url);
+                    apiResponse = await res.json();
+                    console.log("::: Fetched data from Weatherbit API :::");
+                    weatherResponse = apiResponse.data[0];
+                    return weatherResponse;
                 }
             } catch (error) {
                 alert("There was an error:", error.message);
             }
         }
-
         async function pixabayApi () {
             // Getting API key from the server
             let req = await fetch ('http://localhost:8081/api');
@@ -212,6 +218,9 @@ const getTravelResults = document.addEventListener('DOMContentLoaded', async () 
             }
         }
 
+        /******************* 
+        FUNCTION TO UPDATE UI
+        ******************/
         async function updateUI () {
             let resultsDiv = document.getElementById('results');
 
