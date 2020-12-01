@@ -7,6 +7,28 @@ const getTravelResults = document.addEventListener('DOMContentLoaded', async () 
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
         let locationInput = document.getElementById('location').value;
+        // Date input values
+        let startDate = document.getElementById('start-date').value;
+        let endDate = document.getElementById('end-date').value;
+
+        // Converted start date to calculate countdown
+        let convertedStartDate = new Date(startDate);
+        let convertedEndDate = new Date (endDate);
+
+        // Creating new date objects to simulate today, next week and 16 days from now
+        // Each one will call a certain part of the weatherbit API
+        // Today will be used to calculate countdown too
+        let today = new Date();
+        let nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000 );
+        let twoWeeksFromNow = new Date(today.getTime() + 16 * 24 * 60 * 60 * 1000 );
+
+        // Calculating the length of the trip
+        let diffTimeTrip = Math.abs(convertedEndDate - convertedStartDate);
+        let diffDaysTrip = Math.ceil(diffTimeTrip/(1000 * 60 * 60 * 24));
+
+        // Calculating the difference in days between today and the start date
+        let diffTimeCountdown = Math.abs(convertedStartDate - today);
+        let diffDaysCountdown= Math.ceil(diffTimeCountdown/(1000 * 60 * 60 * 24));
 
         // Initializing empty objects to retrieve API data
         let geonamesData = {};
@@ -56,26 +78,6 @@ const getTravelResults = document.addEventListener('DOMContentLoaded', async () 
         } 
         
         async function weatherbitApi () {
-            // Date input values
-            let startDate = document.getElementById('start-date').value;
-            let endDate = document.getElementById('end-date').value;
-
-            //Converted start date to calculate countdown
-            let convertedStartDate = new Date(startDate);
-
-
-            // Creating new date objects to simulate today, next week and 16 days from now
-            // Each one will call a certain part of the weatherbit API
-            // Today will be used to calculate countdown too
-            let today = new Date();
-            let nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000 );
-            let twoWeeksFromNow = new Date(today.getTime() + 16 * 24 * 60 * 60 * 1000 );
-
-            // Calculating the difference in days between today and the start date
-            let diffTime = Math.abs(convertedStartDate - today)
-            diffDays = Math.ceil(diffTime/(1000 * 60 * 60 * 24));
-
-
             // Date input values transformed to last year
             // For the case someone searches for a date after
             // 16 days from now, which will be covered by
@@ -232,7 +234,7 @@ const getTravelResults = document.addEventListener('DOMContentLoaded', async () 
                                     <p>Typically, the weather for ${newData.city_name}/${newData.country_code} on the desired  date is ${newData.temperature}ºC with ${newData.description.toLowerCase()} and apparent temperature of ${newData.app_temp}ºC.</p>
                                     <p><a href="https://www.weatherbit.io/" target="_blank">Source</a></p>
                                     <br>
-                                    <p>Countdown: In ${diffDays} days you will be in ${newData.city_name}!</p>
+                                    <p>Countdown: In ${diffDaysCountdown} days you will be in ${newData.city_name}! You will stay there for ${diffDaysTrip} days!</p>
                                     </div>`
             resultsDiv.style.display = "grid";                      
             resultsDiv.scrollIntoView({behavior: "smooth"});
