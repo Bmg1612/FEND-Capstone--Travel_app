@@ -14,6 +14,8 @@ const getTravelResults = document.addEventListener('DOMContentLoaded', async () 
         let photoResponse = {};
         let newData = {};
 
+        let diffDays = 0;
+
         
         // Main function
         geonamesApi()
@@ -51,14 +53,30 @@ const getTravelResults = document.addEventListener('DOMContentLoaded', async () 
             let startDate = document.getElementById('start-date').value;
             let endDate = document.getElementById('end-date').value;
 
+            //Converted start date to calculate countdown
+            let convertedStartDate = new Date(startDate);
+
+
+            // Creating new date objects to simulate today, next week and 16 days from now
+            // Each one will call a certain part of the weatherbit API
+            // Today will be used to calculate countdown too
+            let today = new Date();
+            let nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000 );
+            let twoWeeksFromNow = new Date(today.getTime() + 16 * 24 * 60 * 60 * 1000 );
+
+            // Calculating the difference in days between today and the start date
+            let diffTime = Math.abs(convertedStartDate - today)
+            diffDays = Math.ceil(diffTime/(1000 * 60 * 60 * 24));
+
+
             // Date input values transformed to last year
             // For the case someone searches for a date after
             // 16 days from now, which will be covered by
             // historical fetch from weatherbit API
-            let convertedStartDate = new Date(startDate);
-            let convertedEndDate = new Date(endDate);
-            convertedStartDate.setMonth(convertedStartDate.getMonth()-12);
-            convertedEndDate.setMonth(convertedEndDate.getMonth()-12)
+            let lastYearStartDate = new Date(startDate);
+            let lastYearEndDate = new Date(endDate);
+            lastYearStartDate.setMonth(lastYearStartDate.getMonth()-12);
+            lastYearEndDate.setMonth(lastYearEndDate.getMonth()-12)
 
             // Helper function to change the format from Date object to regular date
             // As in 'Tue Dec 24 2019 21:00:00 GMT-0300' to => 2019-12-24
@@ -71,14 +89,8 @@ const getTravelResults = document.addEventListener('DOMContentLoaded', async () 
             }
 
             //Changing the format
-            convertedStartDate = changeFormat(convertedStartDate);
-            convertedEndDate = changeFormat(convertedEndDate);
-
-            // Creating new date objects to simulate today, next week and 16 days from now
-            // Each one will call a certain part of the weatherbit API
-            let today = new Date();
-            let nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000 );
-            let twoWeeksFromNow = new Date(today.getTime() + 16 * 24 * 60 * 60 * 1000 );
+            lastYearStartDate = changeFormat(lastYearStartDate);
+            lastYearEndDate = changeFormat(lastYearEndDate);
 
             //Formatting today's date
             today = changeFormat(today);
@@ -128,7 +140,7 @@ const getTravelResults = document.addEventListener('DOMContentLoaded', async () 
                     //In case the trip is after 16 days from now
                     //In this case, this API limits to one request per day in the free version
                 } else {
-                    let url = `https://api.weatherbit.io/v2.0/history/hourly?lat=${latitude}&lon=${longitude}&start_date=${convertedStartDate}&end_date=${convertedEndDate}&key=${apiKey}`;
+                    let url = `https://api.weatherbit.io/v2.0/history/hourly?lat=${latitude}&lon=${longitude}&start_date=${lastYearStartDate}&end_date=${lastYearEndDate}&key=${apiKey}`;
                     let res = await fetch(url);
                     apiResponse = await res.json();
                     console.log("::: Fetched data from Weatherbit API :::");
@@ -165,18 +177,15 @@ const getTravelResults = document.addEventListener('DOMContentLoaded', async () 
                 let res = await fetch(url);
                 apiResponse = await res.json();
                 console.log("::: Fetched data from Pixabay API :::");
-                console.log(apiResponse);
                 // If it is a big city, there will be 20 'hits' photos
                 // Then it will be randomly chosen
                 if (apiResponse.hits.length === 20) {
                     photoResponse = apiResponse.hits[Math.floor(Math.random() * 21)].webformatURL;
-                    console.log(photoResponse)
                     return photoResponse;
                 // If it is a smaller city with less than 20 hits
                 // The first one is chosen    
                 } else {
                     photoResponse = apiResponse.hits[0].webformatURL;
-                    console.log(photoResponse)
                     return photoResponse;
                 }
             } catch (error) {
@@ -213,6 +222,8 @@ const getTravelResults = document.addEventListener('DOMContentLoaded', async () 
                                     <div class="results__text">
                                     <p>Typically, the weather for ${newData.city_name}/${newData.country_code} on the desired  date is ${newData.temperature}ºC with ${newData.description.toLowerCase()} and apparent temperature of ${newData.app_temp}ºC.</p>
                                     <p><a href="https://www.weatherbit.io/" target="_blank">Source</a></p>
+                                    <br>
+                                    <p>Countdown: In ${diffDays} days you will be in ${newData.city_name}!</p>
                                     </div>`
             resultsDiv.style.display = "grid";                      
             resultsDiv.scrollIntoView({behavior: "smooth"});
