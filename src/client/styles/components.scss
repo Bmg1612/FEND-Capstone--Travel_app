@@ -69,4 +69,13 @@ img {
   margin-top: 35px;
   padding: 0 10px;
   border-radius: 15%;
+  @include for-phone-only {
+    width: 90%;
+  }
+  @include for-tablet-only {
+    width: 70%;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+  }
 }
