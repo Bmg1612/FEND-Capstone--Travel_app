@@ -230,26 +230,22 @@ const getTravelResults = document.addEventListener(
       */
       async function updateUI() {
         const resultsDiv = document.getElementById("results");
+
+        /* eslint-disable prettier/prettier */
         resultsDiv.innerHTML = `
         <h2>Your trip to ${newData.city_name}</h2>
         <div class="results__image">
-          <img src="${newData.photo}" alt="Photo of ${
-          newData.city_name
-        } from Pixabay">
+          <img src="${newData.photo}" alt="Photo of ${newData.city_name} from Pixabay">
         </div>;  
         <div class="results__text">
-          <p>Typically, the weather for ${newData.city_name}/
-          ${newData.country_code} on the desired  date is ${
-          newData.temperature
-        }ºC with ${newData.description.toLowerCase()} and apparent temperature of ${
-          newData.app_temp
-        }ºC.
+          <p>Typically, the weather for ${newData.city_name}/${newData.country_code} on the desired  date is 
+          ${newData.temperature}ºC with ${newData.description.toLowerCase()} and
+          apparent temperature of ${newData.app_temp}ºC.
           </p>
           <p><a href="https://www.weatherbit.io/" target="_blank">Source</a></p>
           <br>
-          <p>Countdown: In ${diffDaysCountdown} days you will be in ${
-          newData.city_name
-        }! You will stay there for ${diffDaysTrip} days!</p>
+          <p>Countdown: In ${diffDaysCountdown} days you will be in ${newData.city_name}!
+          You will stay there for ${diffDaysTrip} days!</p>
           <h3>To-do List</h3>
           <div class="toDo__header">
               <input type="text" id="myInput" placeholder="Title...">
@@ -257,6 +253,7 @@ const getTravelResults = document.addEventListener(
           </div>   
           <ul id="myUL"></ul>
         </div>`;
+        /* eslint-enable prettier/prettier */
         resultsDiv.style.display = "grid";
         resultsDiv.scrollIntoView({ behavior: "smooth" });
       }
