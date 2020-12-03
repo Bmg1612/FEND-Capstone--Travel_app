@@ -1,3 +1,5 @@
-import { getTravelResults} from './js/app'
+/* eslint-disable no-unused-vars */
+import { getTravelResults } from "./js/app";
+import { formSubmit } from "./js/toDoList";
 
-import './styles/main.scss'
+import "./styles/main.scss";

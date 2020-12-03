@@ -16,6 +16,12 @@ $primary-color: #1f2932;
   }
 }
 
+@mixin for-desktop-only {
+  @media screen and (min-width: 901px) {
+    @content;
+  }
+}
+
 @mixin for-printing-only {
   @media print {
     @content;
@@ -106,6 +112,23 @@ main {
         border-top: 2px inset #ccc;
         border-left: 0px;
         margin-top: 10px;
+      }
+      h3,
+      .toDo__header,
+      ul {
+        display: none;
+      }
+
+      @include for-desktop-only {
+        h3 {
+          display: block;
+          font-family: $heading-font;
+          text-decoration: underline;
+        }
+        .toDo__header,
+        ul {
+          display: block;
+        }
       }
     }
   }

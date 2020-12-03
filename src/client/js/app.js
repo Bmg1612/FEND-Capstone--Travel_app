@@ -235,7 +235,7 @@ const getTravelResults = document.addEventListener(
         <div class="results__image">
           <img src="${newData.photo}" alt="Photo of ${
           newData.city_name
-        } from Pixabay">     
+        } from Pixabay">
         </div>;  
         <div class="results__text">
           <p>Typically, the weather for ${newData.city_name}/
@@ -250,6 +250,12 @@ const getTravelResults = document.addEventListener(
           <p>Countdown: In ${diffDaysCountdown} days you will be in ${
           newData.city_name
         }! You will stay there for ${diffDaysTrip} days!</p>
+          <h3>To-do List</h3>
+          <div class="toDo__header">
+              <input type="text" id="myInput" placeholder="Title...">
+              <span class="addBtn">Add</span>
+          </div>   
+          <ul id="myUL"></ul>
         </div>`;
         resultsDiv.style.display = "grid";
         resultsDiv.scrollIntoView({ behavior: "smooth" });

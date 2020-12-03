@@ -1,0 +1,54 @@
+const form = document.querySelector(".form");
+
+const formSubmit = form.addEventListener("submit", () => {
+  setTimeout(() => {
+    console.log("Ready.");
+
+    // Add a "checked" symbol when clicking on a list item
+    const list = document.getElementById("myUL");
+    list.addEventListener(
+      "click",
+      (event) => {
+        if (event.target.tagName === "LI") {
+          event.target.classList.toggle("checked");
+        }
+        // eslint-disable-next-line prettier/prettier
+      }, false
+    );
+
+    // Create a new list item when clicking on the "Add" button
+    // eslint-disable-next-line no-unused-vars
+    const span = document.querySelector(".addBtn");
+    span.addEventListener("click", () => {
+      const li = document.createElement("li");
+      const allItems = document.querySelectorAll("li");
+      const inputValue = document.getElementById("myInput").value;
+      li.textContent = inputValue;
+      if (inputValue === "") {
+        alert("You must write something!");
+      } else if (allItems.length <= 5) {
+        document.getElementById("myUL").appendChild(li);
+      } else {
+        alert("There is no more space for items. Sorry!");
+      }
+      document.getElementById("myInput").value = "";
+
+      const span = document.createElement("SPAN");
+      const txt = document.createTextNode("\u00D7");
+      span.className = "close";
+      span.appendChild(txt);
+      li.appendChild(span);
+
+      // Click on a close button to hide the current list item
+      const eraseItems = document.getElementsByClassName("close");
+      for (const x of eraseItems) {
+        x.onclick = () => {
+          const div = x.parentElement;
+          div.remove();
+        };
+      }
+    });
+  }, 4000);
+});
+
+export { formSubmit };
