@@ -36,6 +36,17 @@
       <p><a aria-label="Add me on Linkedin" href="https://www.linkedin.com/in/bruno-gurgel/">Linkedin</a></p>
     </footer>
   </div>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js').then(registration => {
+          console.log('SW registered: ', registration);
+        }).catch(registrationError => {
+          console.log('SW registration failed: ', registrationError);
+        });
+      });
+    }
+  </script>
 </body>
 
 </html>

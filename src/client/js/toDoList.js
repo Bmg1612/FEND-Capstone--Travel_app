@@ -1,6 +1,8 @@
 const form = document.querySelector(".form");
 
 const formSubmit = form.addEventListener("submit", () => {
+  // Adding timeout because the 'span' event depends on the creation
+  // of the element, which occurs when the form is submitted.
   setTimeout(() => {
     console.log("Ready.");
 
@@ -48,7 +50,7 @@ const formSubmit = form.addEventListener("submit", () => {
         };
       }
     });
-  }, 4000);
+  }, 5000);
 });
 
 export { formSubmit };

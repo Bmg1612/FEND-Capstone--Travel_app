@@ -64,11 +64,12 @@ module.exports = {
       skipWaiting: true,
       sourcemap: true,
       // Was not founding the files because there was an "auto" before them
-      // modifyURLPrefix: {
-      //     "auto./": "",
-      //     "auto":""
-      // },
-      // inlineWorkboxRuntime: true
+      modifyURLPrefix: {
+        "auto./": "",
+        // eslint-disable-next-line prettier/prettier
+        "auto": "",
+      },
+      inlineWorkboxRuntime: true,
     }),
     new ImageMinimizerPlugin({
       minimizerOptions: {
