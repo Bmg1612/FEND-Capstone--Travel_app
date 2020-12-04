@@ -33,7 +33,8 @@ app.get("/", (req, res) =>
 const dataObject = {};
 
 // Spin up the server
-app.listen(8081, () => {
+const port = 8081;
+app.listen(port, () => {
   console.log("App is listening on port 8081");
   listening(port);
 });
