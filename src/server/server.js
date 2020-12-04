@@ -5,6 +5,7 @@ const cors = require("cors");
 const { urlencoded } = require("body-parser");
 const dotenv = require("dotenv");
 dotenv.config();
+const listening = require("../client/js/listeningTest");
 
 // Express to run server and routes
 // Start up an instance of app
@@ -32,7 +33,10 @@ app.get("/", (req, res) =>
 const dataObject = {};
 
 // Spin up the server
-app.listen(8081, () => console.log("App is listening on port 8081"));
+app.listen(8081, () => {
+  console.log("App is listening on port 8081");
+  listening(port);
+});
 
 weatherBitKey = process.env.WEATHERBIT_API_KEY;
 pixabayKey = process.env.PIXABAY_API_KEY;
