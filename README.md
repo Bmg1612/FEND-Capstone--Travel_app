@@ -27,3 +27,6 @@ I used Workbox to add offline support.
 Obs: The API cannot be fetched offline. In this project the service worker is used only to mantain the webpage if there is no internet.
 ## Contributions
 Any contributtions and/or suggestions are greatly appreciated.
+## License
+[MIT License](https://opensource.org/licenses/MIT).
+
