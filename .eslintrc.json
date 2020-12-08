@@ -4,8 +4,8 @@
         "es2021": true
     },
     "extends": [
-        "google",
-        "plugin:prettier/recommended"
+      "airbnb-base",
+      "prettier"
         
     ],
     "plugins": [
@@ -17,8 +17,9 @@
     },
     "rules": {
         "prettier/prettier": ["error", {
-            "endOfLine": "auto"}
+            "endOfLine": "auto"},   
         ],
+        "no-unused-vars": "warn", 
         "require-jsdoc" : 0    
     }
     

@@ -74,5 +74,11 @@
     "> 1%",
     "iOS 7",
     "last 3 iOS versions"
-  ]
+  ],
+  "prettier": {
+    "trailingComma": "es5",
+    "tabWidth": 2,
+    "semi": true,
+    "singleQuote": true
+  }
 }
