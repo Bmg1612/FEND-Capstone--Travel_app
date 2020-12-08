@@ -1,16 +1,16 @@
 const getTravelResults = document.addEventListener(
-  "DOMContentLoaded",
+  'DOMContentLoaded',
   async () => {
-    const form = document.querySelector(".form");
+    const form = document.querySelector('.form');
     // Initializing empty string for the API keys fetched from the server
-    let apiKey = "";
+    let apiKey = '';
     // Event Listener
-    form.addEventListener("submit", async (event) => {
+    form.addEventListener('submit', async (event) => {
       event.preventDefault();
-      const locationInput = document.getElementById("location").value;
+      const locationInput = document.getElementById('location').value;
       // Date input values
-      const startDate = document.getElementById("start-date").value;
-      const endDate = document.getElementById("end-date").value;
+      const startDate = document.getElementById('start-date').value;
+      const endDate = document.getElementById('end-date').value;
 
       // Converted start date to calculate countdown
       const convertedStartDate = new Date(startDate);
@@ -49,7 +49,7 @@ const getTravelResults = document.addEventListener(
         .then((geonamesData) => weatherbitApi())
         .then((weatherResponse) => pixabayApi())
         .then((photoResponse) =>
-          postData("/addText", {
+          postData('/addText', {
             city_name: weatherResponse.city_name,
             country_code: weatherResponse.country_code,
             temp: weatherResponse.temp,
@@ -72,10 +72,10 @@ const getTravelResults = document.addEventListener(
             latitude: data.geonames[0].lat,
             longitude: data.geonames[0].lng,
           };
-          console.log("::: Fetched data from Geonames API :::");
+          console.log('::: Fetched data from Geonames API :::');
           return geonamesData;
         } catch (error) {
-          alert("There was an error:", error.message);
+          alert('There was an error:', error.message);
         }
       }
       async function weatherbitApi() {
@@ -90,9 +90,9 @@ const getTravelResults = document.addEventListener(
 
         // Helper function to change the format from Date object to regular date
         // As in 'Tue Dec 24 2019 21:00:00 GMT-0300' to => 2019-12-24
-        const changeFormat = (date = "") => {
-          const dd = String(date.getDate()).padStart(2, "0");
-          const mm = String(date.getMonth() + 1).padStart(2, "0"); // January is 0!
+        const changeFormat = (date = '') => {
+          const dd = String(date.getDate()).padStart(2, '0');
+          const mm = String(date.getMonth() + 1).padStart(2, '0'); // January is 0!
           const yyyy = date.getFullYear();
           date = `${yyyy}-${mm}-${dd}`;
           return date;
@@ -113,11 +113,11 @@ const getTravelResults = document.addEventListener(
         const longitude = geonamesData.longitude;
 
         // Getting API key from the server
-        const req = await fetch("http://localhost:8081/api");
+        const req = await fetch('http://localhost:8081/api');
         try {
           const data = await req.json();
           apiKey = data.weatherKey;
-          console.log("::: Got the key of Weatherbit API :::");
+          console.log('::: Got the key of Weatherbit API :::');
           // Fetching data
 
           // If the trip between next week and 16 days
@@ -125,7 +125,7 @@ const getTravelResults = document.addEventListener(
             const url = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${latitude}&lon=${longitude}&key=${apiKey}`;
             const res = await fetch(url);
             apiResponse = await res.json();
-            console.log("::: Fetched data from Weatherbit API :::");
+            console.log('::: Fetched data from Weatherbit API :::');
             // Creating the object manually because the disposition of the response object is different
             weatherResponse = {
               city_name: apiResponse.city_name,
@@ -135,7 +135,8 @@ const getTravelResults = document.addEventListener(
               app_temp: (
                 (apiResponse.data[8].app_max_temp +
                   // eslint-disable-next-line prettier/prettier
-                  apiResponse.data[10].app_min_temp) / 2
+                  apiResponse.data[10].app_min_temp) /
+                2
               ).toFixed(1),
               weather: {
                 description: apiResponse.data[8].weather.description,
@@ -148,7 +149,7 @@ const getTravelResults = document.addEventListener(
             const url = `https://api.weatherbit.io/v2.0/history/hourly?lat=${latitude}&lon=${longitude}&start_date=${lastYearStartDate}&end_date=${lastYearEndDate}&key=${apiKey}`;
             const res = await fetch(url);
             apiResponse = await res.json();
-            console.log("::: Fetched data from Weatherbit API :::");
+            console.log('::: Fetched data from Weatherbit API :::');
             console.log(apiResponse);
             // Creating the object manually because the disposition of the response object is different
             weatherResponse = {
@@ -169,26 +170,26 @@ const getTravelResults = document.addEventListener(
             const url = `https://api.weatherbit.io/v2.0/current?lat=${latitude}&lon=${longitude}&key=${apiKey}`;
             const res = await fetch(url);
             apiResponse = await res.json();
-            console.log("::: Fetched data from Weatherbit API :::");
+            console.log('::: Fetched data from Weatherbit API :::');
             weatherResponse = apiResponse.data[0];
             return weatherResponse;
           }
         } catch (error) {
-          alert("There was an error:", error.message);
+          alert('There was an error:', error.message);
         }
       }
       async function pixabayApi() {
         // Getting API key from the server
-        const req = await fetch("http://localhost:8081/api");
+        const req = await fetch('http://localhost:8081/api');
         try {
           const data = await req.json();
           apiKey = data.photoKey;
-          console.log("::: Got the key of Pixabay API :::");
+          console.log('::: Got the key of Pixabay API :::');
           // Fetching data
           const url = `https://pixabay.com/api/?key=${apiKey}&q=${weatherResponse.city_name}&image_type=photo`;
           const res = await fetch(url);
           apiResponse = await res.json();
-          console.log("::: Fetched data from Pixabay API :::");
+          console.log('::: Fetched data from Pixabay API :::');
           // If it is a big city, there will be 20 'hits' photos
           // Then it will be randomly chosen
           if (apiResponse.hits.length === 20) {
@@ -202,16 +203,16 @@ const getTravelResults = document.addEventListener(
             return photoResponse;
           }
         } catch (error) {
-          alert("There was an error:", error.message);
+          alert('There was an error:', error.message);
         }
       }
 
-      async function postData(url = "", data = {}) {
+      async function postData(url = '', data = {}) {
         const res = await fetch(url, {
-          method: "POST",
-          credentials: "same-origin",
+          method: 'POST',
+          credentials: 'same-origin',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify(data),
         });
@@ -221,7 +222,7 @@ const getTravelResults = document.addEventListener(
           console.log(newData);
           return newData;
         } catch (error) {
-          alert("There was an error:", error.message);
+          alert('There was an error:', error.message);
         }
       }
 
@@ -229,22 +230,28 @@ const getTravelResults = document.addEventListener(
         FUNCTION TO UPDATE UI
       */
       async function updateUI() {
-        const resultsDiv = document.getElementById("results");
+        const resultsDiv = document.getElementById('results');
 
         /* eslint-disable prettier/prettier */
         resultsDiv.innerHTML = `
         <h2>Your trip to ${newData.city_name}</h2>
         <div class="results__image">
-          <img src="${newData.photo}" alt="Photo of ${newData.city_name} from Pixabay">
+          <img src="${newData.photo}" alt="Photo of ${
+          newData.city_name
+        } from Pixabay">
         </div>;  
         <div class="results__text">
-          <p>Typically, the weather for ${newData.city_name}/${newData.country_code} on the desired  date is 
+          <p>Typically, the weather for ${newData.city_name}/${
+          newData.country_code
+        } on the desired  date is 
           ${newData.temperature}ºC with ${newData.description.toLowerCase()} and
           apparent temperature of ${newData.app_temp}ºC.
           </p>
           <p><a href="https://www.weatherbit.io/" target="_blank">Source</a></p>
           <br>
-          <p>Countdown: In ${diffDaysCountdown} days you will be in ${newData.city_name}!
+          <p>Countdown: In ${diffDaysCountdown} days you will be in ${
+          newData.city_name
+        }!
           You will stay there for ${diffDaysTrip} days!</p>
           <h3>To-do List</h3>
           <div class="toDo__header">
@@ -254,8 +261,8 @@ const getTravelResults = document.addEventListener(
           <ul id="myUL"></ul>
         </div>`;
         /* eslint-enable prettier/prettier */
-        resultsDiv.style.display = "grid";
-        resultsDiv.scrollIntoView({ behavior: "smooth" });
+        resultsDiv.style.display = 'grid';
+        resultsDiv.scrollIntoView({ behavior: 'smooth' });
       }
     });
   }
