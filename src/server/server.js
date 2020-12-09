@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const { urlencoded } = require('body-parser');
 const dotenv = require('dotenv');
+
 dotenv.config();
 const listening = require('../client/js/listeningTest');
 
@@ -30,7 +31,7 @@ app.get('/', (req, res) =>
 );
 
 // Setup empty JS object to act as endpoint for all routes
-const dataObject = {};
+let dataObject = {};
 
 // Spin up the server
 const port = 8081;
@@ -39,8 +40,8 @@ app.listen(port, () => {
   listening(port);
 });
 
-weatherBitKey = process.env.WEATHERBIT_API_KEY;
-pixabayKey = process.env.PIXABAY_API_KEY;
+const weatherBitKey = process.env.WEATHERBIT_API_KEY;
+const pixabayKey = process.env.PIXABAY_API_KEY;
 
 // Sending the API key to the client
 app.get('/api', (req, res) =>
@@ -51,13 +52,14 @@ app.get('/api', (req, res) =>
 );
 
 app.post('/addText', (req, res) => {
-  (dataObject['city_name'] = req.body.city_name),
-    (dataObject['country_code'] = req.body.country_code),
-    (dataObject['temperature'] = req.body.temp),
-    (dataObject['app_temp'] = req.body.app_temp),
-    (dataObject['description'] = req.body.description),
-    (dataObject['photo'] = req.body.photo),
-    console.log(dataObject);
-
+  dataObject = {
+    city_name: req.body.city_name,
+    country_code: req.body.country_code,
+    temperature: req.body.temperature,
+    app_temp: req.body.app_temp,
+    description: req.body.description,
+    photo: req.body.photo,
+  };
+  console.log(dataObject);
   res.send(dataObject);
 });
