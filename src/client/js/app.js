@@ -47,9 +47,9 @@ const getTravelResults = document.addEventListener(
       MAIN FUNCTION
       */
       geonamesApi()
-        .then((geonamesData) => weatherbitApi())
-        .then((weatherResponse) => pixabayApi())
-        .then((photoResponse) =>
+        .then(() => weatherbitApi())
+        .then(() => pixabayApi())
+        .then(() =>
           postData('/addText', {
             city_name: weatherResponse.city_name,
             country_code: weatherResponse.country_code,
@@ -59,7 +59,7 @@ const getTravelResults = document.addEventListener(
             photo: photoResponse,
           })
         )
-        .then((newData) => updateUI());
+        .then(() => updateUI());
 
       /* 
         API FUNCTIONS
@@ -67,6 +67,7 @@ const getTravelResults = document.addEventListener(
 
       /**
        * Fetches latitude and longitude from geonames API.
+       * @async
        * @returns {object} The object containing the desired latitude and longitude.
        */
       async function geonamesApi() {
@@ -88,6 +89,7 @@ const getTravelResults = document.addEventListener(
 
       /**
        * Fetches weather and city/country data from weatherbit API.
+       * @async
        * @returns {object} The object containing the desired weather and city/country data.
        */
       async function weatherbitApi() {
@@ -191,6 +193,12 @@ const getTravelResults = document.addEventListener(
           return false;
         }
       }
+
+      /**
+       * Fetches a photo of the desired location from pixabay API.
+       * @async
+       * @returns {object} The object containing the photo.
+       */
       async function pixabayApi() {
         // Getting API key from the server
         const req = await fetch('http://localhost:8081/api');
@@ -217,9 +225,15 @@ const getTravelResults = document.addEventListener(
           }
         } catch (error) {
           alert('There was an error:', error.message);
+          return false;
         }
       }
 
+      /**
+       * Posts the retrieved API data so that we can update the UI.
+       * @async
+       * @returns {object} The object containing the data that we will use to update the UI.
+       */
       async function postData(url = '', data = {}) {
         const res = await fetch(url, {
           method: 'POST',
@@ -235,12 +249,19 @@ const getTravelResults = document.addEventListener(
           return newData;
         } catch (error) {
           alert('There was an error:', error.message);
+          return false;
         }
       }
 
       /* 
         FUNCTION TO UPDATE UI
       */
+
+      /**
+       * Updates the UI with the extracted data form the APIs.
+       * @async
+       * @returns {void} Nothing.
+       */
       async function updateUI() {
         const resultsDiv = document.getElementById('results');
 
