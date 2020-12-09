@@ -1,3 +1,4 @@
+//* eslint-disable */
 const getTravelResults = document.addEventListener(
   'DOMContentLoaded',
   async () => {
@@ -63,6 +64,11 @@ const getTravelResults = document.addEventListener(
       /* 
         API FUNCTIONS
         */
+
+      /**
+       * Fetches latitude and longitude from geonames API.
+       * @returns {object} The object containing the desired latitude and longitude.
+       */
       async function geonamesApi() {
         const url = `http://api.geonames.org/searchJSON?q=${locationInput}&maxRows=1&username=bmg1612`;
         const req = await fetch(url);
@@ -76,8 +82,14 @@ const getTravelResults = document.addEventListener(
           return geonamesData;
         } catch (error) {
           alert('There was an error:', error.message);
+          return false;
         }
       }
+
+      /**
+       * Fetches weather and city/country data from weatherbit API.
+       * @returns {object} The object containing the desired weather and city/country data.
+       */
       async function weatherbitApi() {
         // Date input values transformed to last year
         // For the case someone searches for a date after
@@ -94,8 +106,9 @@ const getTravelResults = document.addEventListener(
           const dd = String(date.getDate()).padStart(2, '0');
           const mm = String(date.getMonth() + 1).padStart(2, '0'); // January is 0!
           const yyyy = date.getFullYear();
-          date = `${yyyy}-${mm}-${dd}`;
-          return date;
+          let convertedDate = date;
+          convertedDate = `${yyyy}-${mm}-${dd}`;
+          return convertedDate;
         };
 
         // Changing the format
@@ -109,8 +122,7 @@ const getTravelResults = document.addEventListener(
         // Formatting 16 days from now
         twoWeeksFromNow = changeFormat(twoWeeksFromNow);
 
-        const latitude = geonamesData.latitude;
-        const longitude = geonamesData.longitude;
+        const { latitude, longitude } = geonamesData;
 
         // Getting API key from the server
         const req = await fetch('http://localhost:8081/api');
@@ -171,11 +183,12 @@ const getTravelResults = document.addEventListener(
             const res = await fetch(url);
             apiResponse = await res.json();
             console.log('::: Fetched data from Weatherbit API :::');
-            weatherResponse = apiResponse.data[0];
+            [weatherResponse] = apiResponse.data;
             return weatherResponse;
           }
         } catch (error) {
           alert('There was an error:', error.message);
+          return false;
         }
       }
       async function pixabayApi() {
@@ -219,7 +232,6 @@ const getTravelResults = document.addEventListener(
 
         try {
           newData = await res.json();
-          console.log(newData);
           return newData;
         } catch (error) {
           alert('There was an error:', error.message);
