@@ -22,8 +22,8 @@ const toDoFunction = document.addEventListener('DOMContentLoaded', () => {
 
       // Create a new list item when clicking on the "Add" button
       // eslint-disable-next-line no-unused-vars
-      const span = document.querySelector('.addBtn');
-      span.addEventListener('click', () => {
+      const addButton = document.querySelector('.addBtn');
+      addButton.addEventListener('click', () => {
         const li = document.createElement('li');
         const allItems = document.querySelectorAll('li');
         const inputValue = document.getElementById('myInput').value;
