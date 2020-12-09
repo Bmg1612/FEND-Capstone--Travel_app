@@ -7,7 +7,12 @@ const toDoFunction = document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
       console.log('Ready.');
 
-      // Add a "checked" symbol when clicking on a list item
+      /**
+       * Add a "checked" symbol when clicking on a list item
+       * @event
+       * @async
+       * @returns {void} Nothing.
+       */
       const list = document.getElementById('myUL');
       list.addEventListener(
         'click',
@@ -20,8 +25,12 @@ const toDoFunction = document.addEventListener('DOMContentLoaded', () => {
         false
       );
 
-      // Create a new list item when clicking on the "Add" button
-      // eslint-disable-next-line no-unused-vars
+      /**
+       * Create a new list item when clicking on the "Add" button.
+       * @event
+       * @async
+       * @returns {void} Nothing.
+       */
       const addButton = document.querySelector('.addBtn');
       addButton.addEventListener('click', () => {
         const li = document.createElement('li');
@@ -43,7 +52,12 @@ const toDoFunction = document.addEventListener('DOMContentLoaded', () => {
         span.appendChild(txt);
         li.appendChild(span);
 
-        // Click on a close button to hide the current list item
+        /**
+         * Click on a close button to hide the current list item.
+         * @event
+         * @async
+         * @returns {void} Nothing.
+         */
         const eraseItems = document.getElementsByClassName('close');
         for (const x of eraseItems) {
           x.onclick = () => {
