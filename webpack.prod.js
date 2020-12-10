@@ -1,48 +1,44 @@
 // eslint-disable-next-line no-unused-vars
-const path = require("path");
+const path = require('path');
 // eslint-disable-next-line no-unused-vars
-const webpack = require("webpack");
-const HtmlWebPackPlugin = require("html-webpack-plugin");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
-const WorkboxPlugin = require("workbox-webpack-plugin");
-const ImageMinimizerPlugin = require("image-minimizer-webpack-plugin");
+const webpack = require('webpack');
+const HtmlWebPackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const WorkboxPlugin = require('workbox-webpack-plugin');
+const ImageMinimizerPlugin = require('image-minimizer-webpack-plugin');
 
 module.exports = {
-  mode: "production",
-  entry: "./src/client/index.js",
-  devtool: "source-map",
+  mode: 'production',
+  entry: './src/client/index.js',
+  devtool: 'source-map',
   optimization: {
     minimizer: [new OptimizeCSSAssetsPlugin({})],
   },
-  // output: {
-  //     libraryTarget: "var",
-  //     library: "Client",
-  // },
   module: {
     rules: [
       {
-        test: "/.js$/",
+        test: '/.js$/',
         exclude: /node_modules/,
-        loader: "babel-loader",
+        loader: 'babel-loader',
       },
       {
         test: /\.scss$/,
         use: [
           MiniCssExtractPlugin.loader,
-          "css-loader",
-          "postcss-loader",
-          "sass-loader",
+          'css-loader',
+          'postcss-loader',
+          'sass-loader',
         ],
       },
       {
         test: /\.(woff(2)?|ttf|eot|svg|jpe?g|png|gif)(\?v=\d+\.\d+\.\d+)?$/i,
         use: [
           {
-            loader: "file-loader",
+            loader: 'file-loader',
             options: {
-              name: "[name].[ext]",
-              outputPath: "fonts/",
+              name: '[name].[ext]',
+              outputPath: 'fonts/',
             },
           },
         ],
@@ -51,11 +47,11 @@ module.exports = {
   },
   plugins: [
     new HtmlWebPackPlugin({
-      template: "./src/client/views/index.html",
-      filename: "./index.html",
+      template: './src/client/views/index.html',
+      filename: './index.html',
     }),
     new MiniCssExtractPlugin({
-      filename: "[name].css",
+      filename: '[name].css',
     }),
     new WorkboxPlugin.GenerateSW({
       // these options encourage the ServiceWorkers to get in there fast
@@ -65,9 +61,9 @@ module.exports = {
       sourcemap: true,
       // Was not founding the files because there was an "auto" before them
       modifyURLPrefix: {
-        "auto./": "",
+        'auto./': '',
         // eslint-disable-next-line prettier/prettier
-        "auto": "",
+        auto: '',
       },
       inlineWorkboxRuntime: true,
     }),
@@ -75,11 +71,11 @@ module.exports = {
       minimizerOptions: {
         // Lossless optimization with custom option
         plugins: [
-          ["gifsicle", { interlaced: true }],
-          ["jpegtran", { progressive: true }],
-          ["optipng", { optimizationLevel: 5 }],
+          ['gifsicle', { interlaced: true }],
+          ['jpegtran', { progressive: true }],
+          ['optipng', { optimizationLevel: 5 }],
           [
-            "svgo",
+            'svgo',
             {
               plugins: [
                 {
