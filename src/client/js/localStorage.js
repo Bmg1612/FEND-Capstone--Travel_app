@@ -1,23 +1,29 @@
-// Date input values
-
 const saveData = () => {
   const startDate = document.getElementById('start-date').value;
   const endDate = document.getElementById('end-date').value;
-  const locationInput = document.getElementById('location').value;
+  const location = document.getElementById('location').value;
 
   window.localStorage.setItem('startDate', startDate);
   window.localStorage.setItem('endDate', endDate);
-  window.localStorage.setItem('location', locationInput);
+  window.localStorage.setItem('location', location);
 
   console.log(localStorage);
 };
 
 const getData = () => {
-  window.localStorage.getItem('startDate');
-  window.localStorage.getItem('endDate');
-  window.localStorage.getItem('location');
+  const startDateInput = document.getElementById('start-date');
+  const endDateInput = document.getElementById('end-date');
+  const locationInput = document.getElementById('location');
 
-  console.log(getData);
+  if (
+    startDateInput.value === '' &&
+    endDateInput.value === '' &&
+    locationInput.value === ''
+  ) {
+    startDateInput.defaultValue = window.localStorage.getItem('startDate');
+    endDateInput.defaultValue = window.localStorage.getItem('endDate');
+    locationInput.defaultValue = window.localStorage.getItem('location');
+  }
 };
 
 export { saveData, getData };
