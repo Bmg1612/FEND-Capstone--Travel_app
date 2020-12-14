@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { saveData, getData } from './js/localStorage';
+import { storageAvailable, saveData, preFillData } from './js/localStorage';
 import { getTravelResults } from './js/app';
 import { toDoFunction } from './js/toDoList';
 

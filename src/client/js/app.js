@@ -1,4 +1,4 @@
-import { saveData, getData } from './localStorage';
+import { storageAvailable, saveData, preFillData } from './localStorage';
 
 const getTravelResults = document.addEventListener(
   'DOMContentLoaded',
@@ -6,7 +6,13 @@ const getTravelResults = document.addEventListener(
     const form = document.querySelector('.form');
     // Initializing empty string for the API keys fetched from the server
     let apiKey = '';
-    getData();
+    // Checking if Local Storage is available
+    if (storageAvailable('localStorage')) {
+      console.log(' Yippee! We can use localStorage awesomeness');
+      preFillData();
+    } else {
+      console.log('Too bad, no localStorage for us');
+    }
     // Event Listener
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
@@ -14,9 +20,14 @@ const getTravelResults = document.addEventListener(
       // Date input values
       const startDate = document.getElementById('start-date').value;
       const endDate = document.getElementById('end-date').value;
-      // eslint-disable-next-line no-undef
-      saveData();
-      // getData();
+
+      // Saving the input data on the Local Storage
+      if (storageAvailable('localStorage')) {
+        console.log(' Yippee! We can use localStorage awesomeness part 2');
+        saveData();
+      } else {
+        console.log('Too bad, no localStorage for us, AGAIN!');
+      }
 
       // Converted start date to calculate countdown
       const convertedStartDate = new Date(startDate);
