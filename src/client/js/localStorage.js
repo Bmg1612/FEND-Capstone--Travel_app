@@ -1,3 +1,8 @@
+/**
+ * Checks if Local Storage is available on the browser.
+ * @param {string} type The local storage property name.
+ * @returns {boolean} True if it works and error if it does not.
+ */
 const storageAvailable = (type) => {
   let storage = '';
   try {
@@ -25,6 +30,10 @@ const storageAvailable = (type) => {
   }
 };
 
+/**
+ * Saves the data that the user puts on the form.
+ * @returns {void} Nothing. Just saves the data in the local storage.
+ */
 const saveData = () => {
   const startDate = document.getElementById('start-date').value;
   const endDate = document.getElementById('end-date').value;
@@ -37,19 +46,24 @@ const saveData = () => {
   window.localStorage.setItem('startDate', startDate);
   window.localStorage.setItem('endDate', endDate);
   window.localStorage.setItem('location', location);
-
-  console.log(localStorage);
 };
 
+/**
+ * Pre-fill the data if it is on the local storage object.
+ * @returns {void} Nothing.
+ */
 const preFillData = () => {
   const startDateInput = document.getElementById('start-date');
   const endDateInput = document.getElementById('end-date');
   const locationInput = document.getElementById('location');
 
+  // Checking if the inputs are empty
+  // And if there is data on the local storage
   if (
     startDateInput.value === '' &&
     endDateInput.value === '' &&
-    locationInput.value === ''
+    locationInput.value === '' &&
+    window.localStorage.getItem('startDate') !== null
   ) {
     startDateInput.defaultValue = window.localStorage.getItem('startDate');
     endDateInput.defaultValue = window.localStorage.getItem('endDate');

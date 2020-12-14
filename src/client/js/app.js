@@ -8,10 +8,7 @@ const getTravelResults = document.addEventListener(
     let apiKey = '';
     // Checking if Local Storage is available
     if (storageAvailable('localStorage')) {
-      console.log(' Yippee! We can use localStorage awesomeness');
       preFillData();
-    } else {
-      console.log('Too bad, no localStorage for us');
     }
     // Event Listener
     form.addEventListener('submit', async (event) => {
