@@ -55,7 +55,7 @@ app.post('/addText', (req, res) => {
   dataObject = {
     city_name: req.body.city_name,
     country_code: req.body.country_code,
-    temperature: req.body.temperature,
+    temperature: req.body.temp,
     app_temp: req.body.app_temp,
     description: req.body.description,
     photo: req.body.photo,
