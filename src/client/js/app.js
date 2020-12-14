@@ -6,16 +6,17 @@ const getTravelResults = document.addEventListener(
     const form = document.querySelector('.form');
     // Initializing empty string for the API keys fetched from the server
     let apiKey = '';
+    getData();
     // Event Listener
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
-      const locationInput = document.getElementById('location').value;
+      const location = document.getElementById('location').value;
       // Date input values
       const startDate = document.getElementById('start-date').value;
       const endDate = document.getElementById('end-date').value;
       // eslint-disable-next-line no-undef
       saveData();
-      getData();
+      // getData();
 
       // Converted start date to calculate countdown
       const convertedStartDate = new Date(startDate);
@@ -75,7 +76,7 @@ const getTravelResults = document.addEventListener(
        * @returns {object} The object containing the desired latitude and longitude.
        */
       async function geonamesApi() {
-        const url = `http://api.geonames.org/searchJSON?q=${locationInput}&maxRows=1&username=bmg1612`;
+        const url = `http://api.geonames.org/searchJSON?q=${location}&maxRows=1&username=bmg1612`;
         const req = await fetch(url);
         try {
           const data = await req.json();
