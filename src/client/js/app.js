@@ -1,4 +1,5 @@
-//* eslint-disable */
+import { saveData, getData } from './localStorage';
+
 const getTravelResults = document.addEventListener(
   'DOMContentLoaded',
   async () => {
@@ -12,6 +13,9 @@ const getTravelResults = document.addEventListener(
       // Date input values
       const startDate = document.getElementById('start-date').value;
       const endDate = document.getElementById('end-date').value;
+      // eslint-disable-next-line no-undef
+      saveData();
+      getData();
 
       // Converted start date to calculate countdown
       const convertedStartDate = new Date(startDate);
