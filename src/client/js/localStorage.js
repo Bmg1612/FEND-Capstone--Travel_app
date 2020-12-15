@@ -68,6 +68,10 @@ const preFillTripData = () => {
   }
 };
 
+/**
+ * Saves the data that the user puts on the To-do list.
+ * @returns {void} Nothing. Just saves the data in the local storage.
+ */
 const saveToDoData = () => {
   const items = document.querySelectorAll('LI');
   for (const [index, item] of items.entries()) {
@@ -77,6 +81,10 @@ const saveToDoData = () => {
   }
 };
 
+/**
+ * Pre-fill the To-do data if it is on the local storage object.
+ * @returns {void} Nothing.
+ */
 const preFillToDoData = () => {
   for (const [key, value] of Object.entries(localStorage)) {
     if (key.startsWith('toDo')) {
