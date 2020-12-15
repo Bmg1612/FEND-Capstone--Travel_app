@@ -14,16 +14,19 @@ const toDoFunction = document.addEventListener('DOMContentLoaded', () => {
        * @returns {void} Nothing.
        */
       const list = document.getElementById('myUL');
-      list.addEventListener(
-        'click',
-        (event) => {
-          if (event.target.tagName === 'LI') {
-            event.target.classList.toggle('checked');
-          }
-          // eslint-disable-next-line prettier/prettier
-        },
-        false
-      );
+      list.addEventListener('click', (event) => {
+        if (event.target.tagName === 'LI') {
+          event.target.classList.toggle('checked');
+        } else if (
+          event.target.tagName === 'SPAN' &&
+          event.target.parentElement.tagName === 'LI'
+        ) {
+          console.log('In here!')
+          const itemToBeRemoved = event.target.parentElement;
+          itemToBeRemoved.remove();
+        }
+        // eslint-disable-next-line prettier/prettier
+      });
 
       /**
        * Create a new list item when clicking on the "Add" button.
@@ -58,13 +61,13 @@ const toDoFunction = document.addEventListener('DOMContentLoaded', () => {
          * @async
          * @returns {void} Nothing.
          */
-        const eraseItems = document.getElementsByClassName('close');
+        /* const eraseItems = document.getElementsByClassName('close');
         for (const x of eraseItems) {
           x.onclick = () => {
-            const div = x.parentElement;
-            div.remove();
+            const itemToBeRemoved = x.parentElement;
+            itemToBeRemoved.remove();
           };
-        }
+        } */
       });
     }, 5000);
   });
