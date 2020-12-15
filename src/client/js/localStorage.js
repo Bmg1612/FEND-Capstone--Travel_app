@@ -34,13 +34,10 @@ const storageAvailable = (type) => {
  * Saves the data that the user puts on the form.
  * @returns {void} Nothing. Just saves the data in the local storage.
  */
-const saveData = () => {
+const saveTripData = () => {
   const startDate = document.getElementById('start-date').value;
   const endDate = document.getElementById('end-date').value;
   const location = document.getElementById('location').value;
-
-  // Clearing the storage before saving the data
-  localStorage.clear();
 
   // Saving the sent data
   localStorage.setItem('startDate', startDate);
@@ -52,7 +49,7 @@ const saveData = () => {
  * Pre-fill the data if it is on the local storage object.
  * @returns {void} Nothing.
  */
-const preFillData = () => {
+const preFillTripData = () => {
   const startDateInput = document.getElementById('start-date');
   const endDateInput = document.getElementById('end-date');
   const locationInput = document.getElementById('location');
@@ -71,4 +68,34 @@ const preFillData = () => {
   }
 };
 
-export { storageAvailable, saveData, preFillData };
+const saveToDoData = () => {
+  const items = document.querySelectorAll('LI');
+  for (const [index, item] of items.entries()) {
+    const itemWithoutSpan = item.childNodes[0];
+    const toDo = itemWithoutSpan.textContent;
+    localStorage.setItem(`toDoItem_${index + 1}`, toDo);
+  }
+};
+
+const preFillToDoData = () => {
+  for (const [key, value] of Object.entries(localStorage)) {
+    if (key.startsWith('toDo')) {
+      const li = document.createElement('li');
+      li.textContent = value;
+      const span = document.createElement('SPAN');
+      const txt = document.createTextNode('\u00D7');
+      span.className = 'close';
+      span.appendChild(txt);
+      li.appendChild(span);
+      document.getElementById('myUL').appendChild(li);
+    }
+  }
+};
+
+export {
+  storageAvailable,
+  saveTripData,
+  preFillTripData,
+  saveToDoData,
+  preFillToDoData,
+};

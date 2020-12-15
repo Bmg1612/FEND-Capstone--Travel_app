@@ -1,4 +1,9 @@
-import { storageAvailable, saveData, preFillData } from './localStorage';
+import {
+  storageAvailable,
+  saveTripData,
+  preFillTripData,
+  preFillToDoData,
+} from './localStorage';
 
 const getTravelResults = document.addEventListener(
   'DOMContentLoaded',
@@ -8,7 +13,7 @@ const getTravelResults = document.addEventListener(
     let apiKey = '';
     // Checking if Local Storage is available
     if (storageAvailable('localStorage')) {
-      preFillData();
+      preFillTripData();
     }
     // Event Listener
     form.addEventListener('submit', async (event) => {
@@ -20,7 +25,7 @@ const getTravelResults = document.addEventListener(
 
       // Saving the input data on the Local Storage
       if (storageAvailable('localStorage')) {
-        saveData();
+        saveTripData();
       } else {
         console.log('Too bad, no localStorage for us, AGAIN!');
       }
@@ -305,6 +310,9 @@ const getTravelResults = document.addEventListener(
           </div>   
           <ul id="myUL"></ul>
         </div>`;
+        if (storageAvailable('localStorage')) {
+          preFillToDoData();
+        }
         /* eslint-enable prettier/prettier */
         resultsDiv.style.display = 'grid';
         resultsDiv.scrollIntoView({ behavior: 'smooth' });

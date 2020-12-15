@@ -1,3 +1,5 @@
+import { storageAvailable, saveToDoData } from './localStorage';
+
 const toDoFunction = document.addEventListener('DOMContentLoaded', () => {
   const form = document.querySelector('.form');
 
@@ -8,7 +10,7 @@ const toDoFunction = document.addEventListener('DOMContentLoaded', () => {
       console.log('Ready.');
 
       /**
-       * Add a "checked" symbol when clicking on a list item
+       * Add a "checked" symbol when clicking on a list item and remove the item if the 'X' is clicked.
        * @event
        * @async
        * @returns {void} Nothing.
@@ -17,13 +19,24 @@ const toDoFunction = document.addEventListener('DOMContentLoaded', () => {
       list.addEventListener('click', (event) => {
         if (event.target.tagName === 'LI') {
           event.target.classList.toggle('checked');
+          // Erasing the item if the respective 'x' is clicked
         } else if (
           event.target.tagName === 'SPAN' &&
           event.target.parentElement.tagName === 'LI'
         ) {
-          console.log('In here!')
           const itemToBeRemoved = event.target.parentElement;
           itemToBeRemoved.remove();
+          // Erasing the item from the local storage too
+          for (const value of Object.values(localStorage)) {
+            const deletedItemInnerText = itemToBeRemoved.innerText;
+            if (deletedItemInnerText.includes(value)) {
+              localStorage.removeItem(
+                Object.keys(localStorage).find(
+                  (key) => localStorage[key] === value
+                )
+              );
+            }
+          }
         }
         // eslint-disable-next-line prettier/prettier
       });
@@ -44,6 +57,9 @@ const toDoFunction = document.addEventListener('DOMContentLoaded', () => {
           alert('You must write something!');
         } else if (allItems.length <= 5) {
           document.getElementById('myUL').appendChild(li);
+          if (storageAvailable('localStorage')) {
+            saveToDoData();
+          }
         } else {
           alert('There is no more space for items. Sorry!');
         }
@@ -54,20 +70,6 @@ const toDoFunction = document.addEventListener('DOMContentLoaded', () => {
         span.className = 'close';
         span.appendChild(txt);
         li.appendChild(span);
-
-        /**
-         * Click on a close button to hide the current list item.
-         * @event
-         * @async
-         * @returns {void} Nothing.
-         */
-        /* const eraseItems = document.getElementsByClassName('close');
-        for (const x of eraseItems) {
-          x.onclick = () => {
-            const itemToBeRemoved = x.parentElement;
-            itemToBeRemoved.remove();
-          };
-        } */
       });
     }, 5000);
   });
