@@ -20,7 +20,6 @@ const getTravelResults = document.addEventListener(
 
       // Saving the input data on the Local Storage
       if (storageAvailable('localStorage')) {
-        console.log(' Yippee! We can use localStorage awesomeness part 2');
         saveData();
       } else {
         console.log('Too bad, no localStorage for us, AGAIN!');

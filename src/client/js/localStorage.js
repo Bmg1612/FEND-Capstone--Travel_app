@@ -40,12 +40,12 @@ const saveData = () => {
   const location = document.getElementById('location').value;
 
   // Clearing the storage before saving the data
-  window.localStorage.clear();
+  localStorage.clear();
 
   // Saving the sent data
-  window.localStorage.setItem('startDate', startDate);
-  window.localStorage.setItem('endDate', endDate);
-  window.localStorage.setItem('location', location);
+  localStorage.setItem('startDate', startDate);
+  localStorage.setItem('endDate', endDate);
+  localStorage.setItem('location', location);
 };
 
 /**
@@ -63,11 +63,11 @@ const preFillData = () => {
     startDateInput.value === '' &&
     endDateInput.value === '' &&
     locationInput.value === '' &&
-    window.localStorage.getItem('startDate') !== null
+    localStorage.getItem('startDate') !== null
   ) {
-    startDateInput.defaultValue = window.localStorage.getItem('startDate');
-    endDateInput.defaultValue = window.localStorage.getItem('endDate');
-    locationInput.defaultValue = window.localStorage.getItem('location');
+    startDateInput.defaultValue = localStorage.getItem('startDate');
+    endDateInput.defaultValue = localStorage.getItem('endDate');
+    locationInput.defaultValue = localStorage.getItem('location');
   }
 };
 
