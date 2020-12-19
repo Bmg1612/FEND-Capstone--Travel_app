@@ -1,3 +1,10 @@
+import {
+  storageAvailable,
+  saveTripData,
+  preFillTripData,
+  preFillToDoData,
+} from './localStorage';
+
 const getTravelResults = document.addEventListener(
   'DOMContentLoaded',
   async () => {
@@ -290,9 +297,9 @@ const getTravelResults = document.addEventListener(
           </div>   
           <ul id="myUL"></ul>
         </div>`;
-        /* if (storageAvailable('localStorage')) {
+        if (storageAvailable('localStorage')) {
           preFillToDoData();
-        } */
+        }
         /* eslint-enable prettier/prettier */
         view.resultsDiv.style.display = 'grid';
         view.resultsDiv.scrollIntoView({ behavior: 'smooth' });
@@ -307,9 +314,16 @@ const getTravelResults = document.addEventListener(
         this.render();
       },
       render() {
+        if (storageAvailable('localStorage')) {
+          preFillTripData();
+        }
         this.form.addEventListener('submit', async (event) => {
           event.preventDefault();
           controller.setInputData();
+          // Saving the input data on the Local Storage
+          if (storageAvailable('localStorage')) {
+            saveTripData();
+          }
           controller.setDates();
           controller
             .geonamesApi()
