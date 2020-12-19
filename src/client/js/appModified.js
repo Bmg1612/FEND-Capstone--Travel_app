@@ -13,6 +13,13 @@ const getTravelResults = document.addEventListener(
         twoWeeksFromNow: null,
         lastYearStartDate: null,
         lastYearEndDate: null,
+        convertedToday: null,
+        convertedStartDate: null,
+        convertedEndDate: null,
+        diffTimeTrip: null,
+        diffDaysTrip: null,
+        diffTimeCountdown: null,
+        diffDaysCountdown: null,
       },
       apiObjects: {
         geonamesData: {},
@@ -101,6 +108,27 @@ const getTravelResults = document.addEventListener(
           model.dates.lastYearStartDate
         );
         model.dates.lastYearEndDate = changeFormat(model.dates.lastYearEndDate);
+
+        // Converted today, start date and end date to calculate countdowns
+        model.dates.convertedToday = new Date();
+        model.dates.convertedStartDate = new Date(model.input.startDate);
+        model.dates.convertedEndDate = new Date(model.input.endDate);
+
+        // Calculating the length of the trip
+        model.dates.diffTimeTrip = Math.abs(
+          model.dates.convertedEndDate - model.dates.convertedStartDate
+        );
+        model.dates.diffDaysTrip = Math.ceil(
+          model.dates.diffTimeTrip / (1000 * 60 * 60 * 24)
+        );
+
+        // Calculating the difference in days between today and the start date
+        model.dates.diffTimeCountdown = Math.abs(
+          model.dates.convertedStartDate - model.dates.convertedToday
+        );
+        model.dates.diffDaysCountdown = Math.ceil(
+          model.dates.diffTimeCountdown / (1000 * 60 * 60 * 24)
+        );
       },
       async weatherbitApi() {
         // Getting API key from the server
@@ -231,11 +259,50 @@ const getTravelResults = document.addEventListener(
           return false;
         }
       },
+      async updateUI() {
+        /* eslint-disable prettier/prettier */
+        view.resultsDiv.innerHTML = `
+        <h2>Your trip to ${model.apiObjects.newData.city_name}</h2>
+        <div class="results__image">
+          <img src="${model.apiObjects.newData.photo}" alt="Photo of ${
+          model.apiObjects.newData.city_name
+        } from Pixabay">
+        </div>;  
+        <div class="results__text">
+          <p>Typically, the weather for ${model.apiObjects.newData.city_name}/${
+          model.apiObjects.newData.country_code
+        } on the desired  date is 
+          ${
+            model.apiObjects.newData.temperature
+          }ºC with ${model.apiObjects.newData.description.toLowerCase()} and
+          apparent temperature of ${model.apiObjects.newData.app_temp}ºC.
+          </p>
+          <p><a href="https://www.weatherbit.io/" target="_blank">Source</a></p>
+          <br>
+          <p>Countdown: In ${
+            model.dates.diffDaysCountdown
+          } days you will be in ${model.apiObjects.newData.city_name}!
+          You will stay there for ${model.dates.diffDaysTrip} days!</p>
+          <h3>To-do List</h3>
+          <div class="toDo__header">
+              <input type="text" id="myInput" placeholder="Title...">
+              <span class="addBtn">Add</span>
+          </div>   
+          <ul id="myUL"></ul>
+        </div>`;
+        /* if (storageAvailable('localStorage')) {
+          preFillToDoData();
+        } */
+        /* eslint-enable prettier/prettier */
+        view.resultsDiv.style.display = 'grid';
+        view.resultsDiv.scrollIntoView({ behavior: 'smooth' });
+      },
     };
 
     const view = {
       init() {
         this.form = document.querySelector('.form');
+        this.resultsDiv = document.getElementById('results');
 
         this.render();
       },
@@ -258,8 +325,8 @@ const getTravelResults = document.addEventListener(
                   model.apiObjects.weatherResponse.weather.description,
                 photo: model.apiObjects.photoResponse,
               })
-            ); /* 
-        .then(() => updateUI()); */
+            )
+            .then(() => controller.updateUI());
         });
       },
     };
