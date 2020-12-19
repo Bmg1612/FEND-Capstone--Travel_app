@@ -230,7 +230,7 @@ const getTravelResults = document.addEventListener(
           controller
             .geonamesApi()
             .then(() => controller.weatherbitApi())
-            .then(() => pixabayApi());
+            .then(() => controller.pixabayApi());
           /* .then(() =>
           postData('/addText', {
             city_name: weatherResponse.city_name,
