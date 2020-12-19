@@ -8,7 +8,9 @@ import {
 const getTravelResults = document.addEventListener(
   'DOMContentLoaded',
   async () => {
+    /* ======= Model ======= */
     const model = {
+      // Input values
       input: {
         location: null,
         startDate: null,
@@ -20,11 +22,18 @@ const getTravelResults = document.addEventListener(
         twoWeeksFromNow: null,
         lastYearStartDate: null,
         lastYearEndDate: null,
+      },
+      // dates in the Date() format
+      converted: {
         convertedToday: null,
         convertedStartDate: null,
         convertedEndDate: null,
+      },
+      differenceDays: {
+        // Length of the trip
         diffTimeTrip: null,
         diffDaysTrip: null,
+        // Cowntodown to trip
         diffTimeCountdown: null,
         diffDaysCountdown: null,
       },
@@ -37,40 +46,38 @@ const getTravelResults = document.addEventListener(
       },
       apiData: {
         apikey: '',
+        latitude: null,
+        longitude: null,
       },
     };
 
+    /* ======= Controller ======= */
     const controller = {
       init() {
         view.init();
+        this.mainFunction();
       },
-      async geonamesApi() {
-        const url = `http://api.geonames.org/searchJSON?q=${model.input.location}&maxRows=1&username=bmg1612`;
-        const req = await fetch(url);
-        try {
-          const data = await req.json();
-          const apiData = {
-            latitude: data.geonames[0].lat,
-            longitude: data.geonames[0].lng,
-          };
-          model.apiObjects.geonamesData = apiData;
-          this.setLatitudeAndLongitude();
-          console.log('::: Fetched data from Geonames API :::');
-          return model.apiObjects.geonamesData;
-        } catch (error) {
-          alert('There was an error:', error.message);
-          return false;
-        }
-      },
+      /**
+       * Changes the model.input properties to the values that the user entendered.
+       * @returns {void} Nothing.
+       */
       setInputData() {
         model.input.location = document.getElementById('location').value;
         model.input.startDate = document.getElementById('start-date').value;
         model.input.endDate = document.getElementById('end-date').value;
       },
+      /**
+       * Changes the model.apiData latitude and longitude properties to the ones of the place the user will go.
+       * @returns {void} Nothing.
+       */
       setLatitudeAndLongitude() {
         model.apiData.latitude = model.apiObjects.geonamesData.latitude;
         model.apiData.longitude = model.apiObjects.geonamesData.longitude;
       },
+      /**
+       * All the functions related to dates of the weatherbit api.
+       * @returns {void} Nothing.
+       */
       setDates() {
         // Getting the dates
         model.dates.today = new Date();
@@ -80,10 +87,11 @@ const getTravelResults = document.addEventListener(
         model.dates.twoWeeksFromNow = new Date(
           model.dates.today.getTime() + 16 * 24 * 60 * 60 * 1000
         );
-        // Date input values transformed to last year
-        // For the case someone searches for a date after
-        // 16 days from now, which will be covered by
-        // historical fetch from weatherbit API
+        /* Date input values transformed to last year
+         * For the case someone searches for a date after
+         * 16 days from now, which will be covered by
+         * historical fetch from weatherbit API
+         */
         model.dates.lastYearStartDate = new Date(model.input.startDate);
         model.dates.lastYearEndDate = new Date(model.input.endDate);
         model.dates.lastYearStartDate.setMonth(
@@ -116,27 +124,91 @@ const getTravelResults = document.addEventListener(
         );
         model.dates.lastYearEndDate = changeFormat(model.dates.lastYearEndDate);
 
-        // Converted today, start date and end date to calculate countdowns
-        model.dates.convertedToday = new Date();
-        model.dates.convertedStartDate = new Date(model.input.startDate);
-        model.dates.convertedEndDate = new Date(model.input.endDate);
+        /* Converted today, start date and end date to calculate countdowns
+         * To a format like this: Tue Dec 24 2019 21:00:00 GMT-0300
+         */
+        model.converted.convertedToday = new Date();
+        model.converted.convertedStartDate = new Date(model.input.startDate);
+        model.converted.convertedEndDate = new Date(model.input.endDate);
 
         // Calculating the length of the trip
-        model.dates.diffTimeTrip = Math.abs(
-          model.dates.convertedEndDate - model.dates.convertedStartDate
+        model.differenceDays.diffTimeTrip = Math.abs(
+          model.converted.convertedEndDate - model.converted.convertedStartDate
         );
-        model.dates.diffDaysTrip = Math.ceil(
-          model.dates.diffTimeTrip / (1000 * 60 * 60 * 24)
+        model.differenceDays.diffDaysTrip = Math.ceil(
+          model.differenceDays.diffTimeTrip / (1000 * 60 * 60 * 24)
         );
 
         // Calculating the difference in days between today and the start date
-        model.dates.diffTimeCountdown = Math.abs(
-          model.dates.convertedStartDate - model.dates.convertedToday
+        model.differenceDays.diffTimeCountdown = Math.abs(
+          model.converted.convertedStartDate - model.converted.convertedToday
         );
-        model.dates.diffDaysCountdown = Math.ceil(
-          model.dates.diffTimeCountdown / (1000 * 60 * 60 * 24)
+        model.differenceDays.diffDaysCountdown = Math.ceil(
+          model.differenceDays.diffTimeCountdown / (1000 * 60 * 60 * 24)
         );
       },
+      mainFunction() {
+        if (storageAvailable('localStorage')) {
+          preFillTripData();
+        }
+        view.form.addEventListener('submit', async (event) => {
+          event.preventDefault();
+          this.setInputData();
+          // Saving the input data on the Local Storage
+          if (storageAvailable('localStorage')) {
+            saveTripData();
+          }
+          this.setDates();
+          apis
+            .geonamesApi()
+            .then(() => apis.weatherbitApi())
+            .then(() => apis.pixabayApi())
+            .then(() =>
+              apis.postData('/addText', {
+                city_name: model.apiObjects.weatherResponse.city_name,
+                country_code: model.apiObjects.weatherResponse.country_code,
+                temp: model.apiObjects.weatherResponse.temp,
+                app_temp: model.apiObjects.weatherResponse.app_temp,
+                description:
+                  model.apiObjects.weatherResponse.weather.description,
+                photo: model.apiObjects.photoResponse,
+              })
+            )
+            .then(() => view.render());
+        });
+      },
+    };
+
+    /* ======= APIS ======= */
+    const apis = {
+      /**
+       * Fetches latitude and longitude from geonames API.
+       * @async
+       * @returns {object} The object containing the desired latitude and longitude.
+       */
+      async geonamesApi() {
+        const url = `http://api.geonames.org/searchJSON?q=${model.input.location}&maxRows=1&username=bmg1612`;
+        const req = await fetch(url);
+        try {
+          const data = await req.json();
+          const apiData = {
+            latitude: data.geonames[0].lat,
+            longitude: data.geonames[0].lng,
+          };
+          model.apiObjects.geonamesData = apiData;
+          controller.setLatitudeAndLongitude();
+          console.log('::: Fetched data from Geonames API :::');
+          return model.apiObjects.geonamesData;
+        } catch (error) {
+          alert('There was an error:', error.message);
+          return false;
+        }
+      },
+      /**
+       * Fetches weather and city/country data from weatherbit API.
+       * @async
+       * @returns {object} The object containing the desired weather and city/country data.
+       */
       async weatherbitApi() {
         // Getting API key from the server
         const req = await fetch('http://localhost:8081/api');
@@ -144,6 +216,8 @@ const getTravelResults = document.addEventListener(
           const data = await req.json();
           model.apiData.apiKey = data.weatherKey;
           console.log('::: Got the key of Weatherbit API :::');
+
+          // Getting the API data //
 
           // If the trip between next week and 16 days
           if (
@@ -154,12 +228,13 @@ const getTravelResults = document.addEventListener(
             const res = await fetch(url);
             model.apiObjects.apiResponse = await res.json();
             console.log('::: Fetched data from Weatherbit API :::');
-            // Creating the object manually because the disposition of the response object is different
+            // Getting only the data that I will use in the new object
             model.apiObjects.weatherResponse = {
               city_name: model.apiObjects.apiResponse.city_name,
               country_code: model.apiObjects.apiResponse.country_code,
               // Getting the array n. 8 because it is on the middle of 16
               temp: model.apiObjects.apiResponse.data[8].temp,
+              // Simulating apparent temperature, since it is not given in this response
               app_temp: (
                 (model.apiObjects.apiResponse.data[8].app_max_temp +
                   // eslint-disable-next-line prettier/prettier
@@ -172,20 +247,20 @@ const getTravelResults = document.addEventListener(
               },
             };
             return model.apiObjects.weatherResponse;
-            // In case the trip is after 16 days from now
-            // In this case, this API limits to one request per day in the free version
+            /* In case the trip is after 16 days from now
+             * In this case, this API limits to one request per day in the free version
+             * It will fetch the weather from the same date last year
+             */
           } else if (model.input.startDate > model.dates.twoWeeksFromNow) {
             const url = `https://api.weatherbit.io/v2.0/history/hourly?lat=${model.apiData.latitude}&lon=${model.apiData.longitude}&start_date=${model.dates.lastYearStartDate}&end_date=${model.dates.lastYearEndDate}&key=${model.apiData.apiKey}`;
             const res = await fetch(url);
             model.apiObjects.apiResponse = await res.json();
             console.log('::: Fetched data from Weatherbit API :::');
-            // Creating the object manually because the disposition of the response object is different
+            // Getting only the data that I will use in the new object
             model.apiObjects.weatherResponse = {
               city_name: model.apiObjects.apiResponse.city_name,
               country_code: model.apiObjects.apiResponse.country_code,
-              // Getting the array n. 8 because it is on the middle of 16
               temp: model.apiObjects.apiResponse.data.temp,
-              // Simulating apparent temperature, since it is not given in this response
               app_temp: model.apiObjects.apiResponse.data.app_temp,
               weather: {
                 description:
@@ -216,6 +291,12 @@ const getTravelResults = document.addEventListener(
           return false;
         }
       },
+
+      /**
+       * Fetches a photo of the desired location from pixabay API.
+       * @async
+       * @returns {object} The object containing the photo.
+       */
       async pixabayApi() {
         // Getting API key from the server
         const req = await fetch('http://localhost:8081/api');
@@ -228,16 +309,18 @@ const getTravelResults = document.addEventListener(
           const res = await fetch(url);
           model.apiObjects.apiResponse = await res.json();
           console.log('::: Fetched data from Pixabay API :::');
-          // If it is a big city, there will be 20 'hits' photos
-          // Then it will be randomly chosen
+          /* If it is a big city, there will be 20 'hits' photos
+           * Then it will be randomly chosen
+           */
           if (model.apiObjects.apiResponse.hits.length === 20) {
             model.apiObjects.photoResponse =
               model.apiObjects.apiResponse.hits[
                 Math.floor(Math.random() * 21)
               ].webformatURL;
             return model.apiObjects.photoResponse;
-            // If it is a smaller city with less than 20 hits
-            // The first one is chosen
+            /* If it is a smaller city with less than 20 hits
+             * The first one is chosen
+             */
           } else {
             model.apiObjects.photoResponse =
               model.apiObjects.apiResponse.hits[0].webformatURL;
@@ -248,6 +331,12 @@ const getTravelResults = document.addEventListener(
           return false;
         }
       },
+
+      /**
+       * Posts the retrieved API data so that we can update the UI.
+       * @async
+       * @returns {object} The object containing the data that we will use to update the UI.
+       */
       async postData(url = '', data = {}) {
         const res = await fetch(url, {
           method: 'POST',
@@ -266,30 +355,36 @@ const getTravelResults = document.addEventListener(
           return false;
         }
       },
-      async updateUI() {
-        /* eslint-disable prettier/prettier */
+    };
+
+    /* ======= View ======= */
+    const view = {
+      init() {
+        this.form = document.querySelector('.form');
+        this.resultsDiv = document.getElementById('results');
+      },
+
+      /**
+       * Updates the UI with the extracted data form the APIs.
+       * @async
+       * @returns {void} Nothing.
+       */
+      render() {
+        // prettier-ignore
         view.resultsDiv.innerHTML = `
         <h2>Your trip to ${model.apiObjects.newData.city_name}</h2>
         <div class="results__image">
-          <img src="${model.apiObjects.newData.photo}" alt="Photo of ${
-          model.apiObjects.newData.city_name
-        } from Pixabay">
+          <img src="${model.apiObjects.newData.photo}" alt="Photo of ${model.apiObjects.newData.city_name} from Pixabay">
         </div>;  
         <div class="results__text">
-          <p>Typically, the weather for ${model.apiObjects.newData.city_name}/${
-          model.apiObjects.newData.country_code
-        } on the desired  date is 
-          ${
-            model.apiObjects.newData.temperature
-          }ºC with ${model.apiObjects.newData.description.toLowerCase()} and
-          apparent temperature of ${model.apiObjects.newData.app_temp}ºC.
+          <p>Typically, the weather for ${model.apiObjects.newData.city_name}/${model.apiObjects.newData.country_code}
+             on the desired  date is ${model.apiObjects.newData.temperature}ºC with ${model.apiObjects.newData.description.toLowerCase()}
+            and apparent temperature of ${model.apiObjects.newData.app_temp}ºC.
           </p>
           <p><a href="https://www.weatherbit.io/" target="_blank">Source</a></p>
           <br>
-          <p>Countdown: In ${
-            model.dates.diffDaysCountdown
-          } days you will be in ${model.apiObjects.newData.city_name}!
-          You will stay there for ${model.dates.diffDaysTrip} days!</p>
+          <p>Countdown: In ${model.differenceDays.diffDaysCountdown} days you will be in ${model.apiObjects.newData.city_name}!
+             You will stay there for ${model.differenceDays.diffDaysTrip} days!</p>
           <h3>To-do List</h3>
           <div class="toDo__header">
               <input type="text" id="myInput" placeholder="Title...">
@@ -303,45 +398,6 @@ const getTravelResults = document.addEventListener(
         /* eslint-enable prettier/prettier */
         view.resultsDiv.style.display = 'grid';
         view.resultsDiv.scrollIntoView({ behavior: 'smooth' });
-      },
-    };
-
-    const view = {
-      init() {
-        this.form = document.querySelector('.form');
-        this.resultsDiv = document.getElementById('results');
-
-        this.render();
-      },
-      render() {
-        if (storageAvailable('localStorage')) {
-          preFillTripData();
-        }
-        this.form.addEventListener('submit', async (event) => {
-          event.preventDefault();
-          controller.setInputData();
-          // Saving the input data on the Local Storage
-          if (storageAvailable('localStorage')) {
-            saveTripData();
-          }
-          controller.setDates();
-          controller
-            .geonamesApi()
-            .then(() => controller.weatherbitApi())
-            .then(() => controller.pixabayApi())
-            .then(() =>
-              controller.postData('/addText', {
-                city_name: model.apiObjects.weatherResponse.city_name,
-                country_code: model.apiObjects.weatherResponse.country_code,
-                temp: model.apiObjects.weatherResponse.temp,
-                app_temp: model.apiObjects.weatherResponse.app_temp,
-                description:
-                  model.apiObjects.weatherResponse.weather.description,
-                photo: model.apiObjects.photoResponse,
-              })
-            )
-            .then(() => controller.updateUI());
-        });
       },
     };
 
