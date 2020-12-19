@@ -3,4 +3,5 @@ dist
 .env
 dump.txt
 dump.js
+oldApp.js
 .vscode/

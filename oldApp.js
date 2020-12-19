@@ -1,9 +1,10 @@
-import {
+/* import {
   storageAvailable,
   saveTripData,
   preFillTripData,
   preFillToDoData,
-} from './localStorage';
+} from './localStorage'; */
+/* eslint-disable */
 
 const getTravelResults = document.addEventListener(
   'DOMContentLoaded',
