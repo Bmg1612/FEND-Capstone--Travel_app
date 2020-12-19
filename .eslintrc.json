@@ -24,7 +24,7 @@
         "no-alert": 0 ,
         "no-else-return": 0,
         "import/prefer-default-export": 0,
-        "no-use-before-define": ["error", { "functions": false }],
+        "no-use-before-define": 0,
         "no-restricted-syntax": 0,
         "import/no-extraneous-dependencies": 0,
         "func-names": 0
