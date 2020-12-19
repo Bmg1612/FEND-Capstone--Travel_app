@@ -200,7 +200,6 @@ const getTravelResults = document.addEventListener(
               model.apiObjects.apiResponse.hits[
                 Math.floor(Math.random() * 21)
               ].webformatURL;
-            console.log(model.apiObjects.photoResponse);
             return model.apiObjects.photoResponse;
             // If it is a smaller city with less than 20 hits
             // The first one is chosen
@@ -209,6 +208,24 @@ const getTravelResults = document.addEventListener(
               model.apiObjects.apiResponse.hits[0].webformatURL;
             return model.apiObjects.photoResponse;
           }
+        } catch (error) {
+          alert('There was an error:', error.message);
+          return false;
+        }
+      },
+      async postData(url = '', data = {}) {
+        const res = await fetch(url, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+
+        try {
+          model.apiObjects.newData = await res.json();
+          return model.apiObjects.newData;
         } catch (error) {
           alert('There was an error:', error.message);
           return false;
@@ -230,17 +247,18 @@ const getTravelResults = document.addEventListener(
           controller
             .geonamesApi()
             .then(() => controller.weatherbitApi())
-            .then(() => controller.pixabayApi());
-          /* .then(() =>
-          postData('/addText', {
-            city_name: weatherResponse.city_name,
-            country_code: weatherResponse.country_code,
-            temp: weatherResponse.temp,
-            app_temp: weatherResponse.app_temp,
-            description: weatherResponse.weather.description,
-            photo: photoResponse,
-          })
-        )
+            .then(() => controller.pixabayApi())
+            .then(() =>
+              controller.postData('/addText', {
+                city_name: model.apiObjects.weatherResponse.city_name,
+                country_code: model.apiObjects.weatherResponse.country_code,
+                temp: model.apiObjects.weatherResponse.temp,
+                app_temp: model.apiObjects.weatherResponse.app_temp,
+                description:
+                  model.apiObjects.weatherResponse.weather.description,
+                photo: model.apiObjects.photoResponse,
+              })
+            ); /* 
         .then(() => updateUI()); */
         });
       },
