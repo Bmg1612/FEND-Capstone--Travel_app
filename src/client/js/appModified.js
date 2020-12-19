@@ -7,7 +7,13 @@ const getTravelResults = document.addEventListener(
         startDate: null,
         endDate: null,
       },
-
+      dates: {
+        today: null,
+        nextWeek: null,
+        twoWeeksFromNow: null,
+        lastYearStartDate: null,
+        lastYearEndDate: null,
+      },
       apiObjects: {
         geonamesData: {},
         apiResponse: {},
@@ -51,6 +57,163 @@ const getTravelResults = document.addEventListener(
         model.apiData.latitude = model.apiObjects.geonamesData.latitude;
         model.apiData.longitude = model.apiObjects.geonamesData.longitude;
       },
+      setDates() {
+        // Getting the dates
+        model.dates.today = new Date();
+        model.dates.nextWeek = new Date(
+          model.dates.today.getTime() + 7 * 24 * 60 * 60 * 1000
+        );
+        model.dates.twoWeeksFromNow = new Date(
+          model.dates.today.getTime() + 16 * 24 * 60 * 60 * 1000
+        );
+        // Date input values transformed to last year
+        // For the case someone searches for a date after
+        // 16 days from now, which will be covered by
+        // historical fetch from weatherbit API
+        model.dates.lastYearStartDate = new Date(model.input.startDate);
+        model.dates.lastYearEndDate = new Date(model.input.endDate);
+        model.dates.lastYearStartDate.setMonth(
+          model.dates.lastYearStartDate.getMonth() - 12
+        );
+        model.dates.lastYearEndDate.setMonth(
+          model.dates.lastYearEndDate.getMonth() - 12
+        );
+
+        /* Helper function to change the format from Date object to regular date
+        as in 'Tue Dec 24 2019 21:00:00 GMT-0300' to => 2019-12-24 */
+        const changeFormat = (date = '') => {
+          const dd = String(date.getDate()).padStart(2, '0');
+          const mm = String(date.getMonth() + 1).padStart(2, '0'); // January is 0!
+          const yyyy = date.getFullYear();
+          let convertedDate = date;
+          convertedDate = `${yyyy}-${mm}-${dd}`;
+          return convertedDate;
+        };
+
+        // Formatting today's date
+        model.dates.today = changeFormat(model.dates.today);
+        // Formatting next weeks's date
+        model.dates.nextWeek = changeFormat(model.dates.nextWeek);
+        // Formatting 16 days from now
+        model.dates.twoWeeksFromNow = changeFormat(model.dates.twoWeeksFromNow);
+        // Changing the format of last year dates
+        model.dates.lastYearStartDate = changeFormat(
+          model.dates.lastYearStartDate
+        );
+        model.dates.lastYearEndDate = changeFormat(model.dates.lastYearEndDate);
+      },
+      async weatherbitApi() {
+        // Getting API key from the server
+        const req = await fetch('http://localhost:8081/api');
+        try {
+          const data = await req.json();
+          model.apiData.apiKey = data.weatherKey;
+          console.log('::: Got the key of Weatherbit API :::');
+
+          // If the trip between next week and 16 days
+          if (
+            model.input.startDate > model.dates.nextWeek &&
+            model.input.startDate <= model.dates.twoWeeksFromNow
+          ) {
+            const url = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${model.apiData.latitude}&lon=${model.apiData.longitude}&key=${model.apiData.apiKey}`;
+            const res = await fetch(url);
+            model.apiObjects.apiResponse = await res.json();
+            console.log('::: Fetched data from Weatherbit API :::');
+            // Creating the object manually because the disposition of the response object is different
+            model.apiObjects.weatherResponse = {
+              city_name: model.apiObjects.apiResponse.city_name,
+              country_code: model.apiObjects.apiResponse.country_code,
+              // Getting the array n. 8 because it is on the middle of 16
+              temp: model.apiObjects.apiResponse.data[8].temp,
+              app_temp: (
+                (model.apiObjects.apiResponse.data[8].app_max_temp +
+                  // eslint-disable-next-line prettier/prettier
+                  model.apiObjects.apiResponse.data[10].app_min_temp) /
+                2
+              ).toFixed(1),
+              weather: {
+                description:
+                  model.apiObjects.apiResponse.data[8].weather.description,
+              },
+            };
+            return model.apiObjects.weatherResponse;
+            // In case the trip is after 16 days from now
+            // In this case, this API limits to one request per day in the free version
+          } else if (model.input.startDate > model.dates.twoWeeksFromNow) {
+            const url = `https://api.weatherbit.io/v2.0/history/hourly?lat=${model.apiData.latitude}&lon=${model.apiData.longitude}&start_date=${model.dates.lastYearStartDate}&end_date=${model.dates.lastYearEndDate}&key=${model.apiData.apiKey}`;
+            const res = await fetch(url);
+            model.apiObjects.apiResponse = await res.json();
+            console.log('::: Fetched data from Weatherbit API :::');
+            // Creating the object manually because the disposition of the response object is different
+            model.apiObjects.weatherResponse = {
+              city_name: model.apiObjects.apiResponse.city_name,
+              country_code: model.apiObjects.apiResponse.country_code,
+              // Getting the array n. 8 because it is on the middle of 16
+              temp: model.apiObjects.apiResponse.data.temp,
+              // Simulating apparent temperature, since it is not given in this response
+              app_temp: model.apiObjects.apiResponse.data.app_temp,
+              weather: {
+                description:
+                  model.apiObjects.apiResponse.data[8].weather.description,
+              },
+            };
+            return model.apiObjects.weatherResponse;
+            // If the trip is this week
+          } else {
+            const url = `https://api.weatherbit.io/v2.0/current?lat=${model.apiData.latitude}&lon=${model.apiData.longitude}&key=${model.apiData.apiKey}`;
+            const res = await fetch(url);
+            model.apiObjects.apiResponse = await res.json();
+            console.log('::: Fetched data from Weatherbit API :::');
+            model.apiObjects.weatherResponse = {
+              city_name: model.apiObjects.apiResponse.data[0].city_name,
+              country_code: model.apiObjects.apiResponse.data[0].country_code,
+              temp: model.apiObjects.apiResponse.data[0].temp,
+              app_temp: model.apiObjects.apiResponse.data[0].app_temp,
+              weather: {
+                description:
+                  model.apiObjects.apiResponse.data[0].weather.description,
+              },
+            };
+            return model.apiObjects.weatherResponse;
+          }
+        } catch (error) {
+          alert('There was an error:', error.message);
+          return false;
+        }
+      },
+      async pixabayApi() {
+        // Getting API key from the server
+        const req = await fetch('http://localhost:8081/api');
+        try {
+          const data = await req.json();
+          model.apiData.apiKey = data.photoKey;
+          console.log('::: Got the key of Pixabay API :::');
+          // Fetching data
+          const url = `https://pixabay.com/api/?key=${model.apiData.apiKey}&q=${model.apiObjects.weatherResponse.city_name}&image_type=photo`;
+          const res = await fetch(url);
+          model.apiObjects.apiResponse = await res.json();
+          console.log('::: Fetched data from Pixabay API :::');
+          // If it is a big city, there will be 20 'hits' photos
+          // Then it will be randomly chosen
+          if (model.apiObjects.apiResponse.hits.length === 20) {
+            model.apiObjects.photoResponse =
+              model.apiObjects.apiResponse.hits[
+                Math.floor(Math.random() * 21)
+              ].webformatURL;
+            console.log(model.apiObjects.photoResponse);
+            return model.apiObjects.photoResponse;
+            // If it is a smaller city with less than 20 hits
+            // The first one is chosen
+          } else {
+            model.apiObjects.photoResponse =
+              model.apiObjects.apiResponse.hits[0].webformatURL;
+            return model.apiObjects.photoResponse;
+          }
+        } catch (error) {
+          alert('There was an error:', error.message);
+          return false;
+        }
+      },
     };
 
     const view = {
@@ -63,9 +226,12 @@ const getTravelResults = document.addEventListener(
         this.form.addEventListener('submit', async (event) => {
           event.preventDefault();
           controller.setInputData();
-          controller.geonamesApi();
-          /* .then(() => pixabayApi())
-        .then(() =>
+          controller.setDates();
+          controller
+            .geonamesApi()
+            .then(() => controller.weatherbitApi())
+            .then(() => pixabayApi());
+          /* .then(() =>
           postData('/addText', {
             city_name: weatherResponse.city_name,
             country_code: weatherResponse.country_code,
