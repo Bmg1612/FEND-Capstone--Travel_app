@@ -55,7 +55,7 @@ const getTravelResults = document.addEventListener(
     /* ======= Controller ======= */
     const controller = {
       init() {
-        view.init();
+        appView.init();
         this.mainFunction();
         this.toDoList();
       },
@@ -153,7 +153,7 @@ const getTravelResults = document.addEventListener(
         if (storageAvailable('localStorage')) {
           preFillTripData();
         }
-        view.form.addEventListener('submit', async (event) => {
+        appView.form.addEventListener('submit', async (event) => {
           event.preventDefault();
           this.setInputData();
           // Saving the input data on the Local Storage
@@ -176,11 +176,11 @@ const getTravelResults = document.addEventListener(
                 photo: model.apiObjects.photoResponse,
               })
             )
-            .then(() => view.render());
+            .then(() => appView.render());
         });
       },
       toDoList() {
-        view.form.addEventListener('submit', () => {
+        appView.form.addEventListener('submit', () => {
           // Adding timeout because the 'span' event depends on the creation
           // of the element, which occurs when the form is submitted.
           setTimeout(() => {
@@ -370,7 +370,7 @@ const getTravelResults = document.addEventListener(
     };
 
     /* ======= View ======= */
-    const view = {
+    const appView = {
       init() {
         this.form = document.querySelector('.form');
         this.resultsDiv = document.getElementById('results');
@@ -383,7 +383,7 @@ const getTravelResults = document.addEventListener(
        */
       render() {
         // prettier-ignore
-        view.resultsDiv.innerHTML = `
+        appView.resultsDiv.innerHTML = `
         <h2>Your trip to ${model.apiObjects.newData.city_name}</h2>
         <div class="results__image">
           <img src="${model.apiObjects.newData.photo}" alt="Photo of ${model.apiObjects.newData.city_name} from Pixabay">
@@ -408,8 +408,8 @@ const getTravelResults = document.addEventListener(
           preFillToDoData();
         }
         /* eslint-enable prettier/prettier */
-        view.resultsDiv.style.display = 'grid';
-        view.resultsDiv.scrollIntoView({ behavior: 'smooth' });
+        appView.resultsDiv.style.display = 'grid';
+        appView.resultsDiv.scrollIntoView({ behavior: 'smooth' });
       },
     };
 
