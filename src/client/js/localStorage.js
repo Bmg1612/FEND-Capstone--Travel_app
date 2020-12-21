@@ -12,6 +12,7 @@ const storageAvailable = (type) => {
     storage.removeItem(x);
     return true;
   } catch (e) {
+    // console.log(e);
     return (
       e instanceof DOMException &&
       // everything except Firefox
@@ -43,6 +44,8 @@ const saveTripData = () => {
   localStorage.setItem('startDate', startDate);
   localStorage.setItem('endDate', endDate);
   localStorage.setItem('location', location);
+
+  return true;
 };
 
 /**
@@ -66,6 +69,7 @@ const preFillTripData = () => {
     endDateInput.defaultValue = localStorage.getItem('endDate');
     locationInput.defaultValue = localStorage.getItem('location');
   }
+  return true;
 };
 
 /**
@@ -78,7 +82,9 @@ const saveToDoData = () => {
     const itemWithoutSpan = item.childNodes[0];
     const toDo = itemWithoutSpan.textContent;
     localStorage.setItem(`toDoItem_${index + 1}`, toDo);
+    return true;
   }
+  return true;
 };
 
 /**
@@ -98,6 +104,7 @@ const preFillToDoData = () => {
       document.getElementById('myUL').appendChild(li);
     }
   }
+  return true;
 };
 
 export {
