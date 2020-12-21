@@ -1,11 +1,11 @@
-/* eslint-disable no-unused-vars */
+/* eslint-disable */
 // Import the js file to test
-import { getTravelResults } from "../src/client/js/app";
+import { getTravelResults } from '../src/client/js/app';
 
 // A test suite may contain one or more related tests
-describe("Testing the app functionality", () => {
+describe('Testing the app functionality', () => {
   // The test() function has two arguments - a string description, and an actual test as a callback function.
-  test("Testing the getTravelResults() function", () => {
+  test('Testing the getTravelResults() function', () => {
     // Simulating DOM environment for testing
     document.body.innerHTML = `
     <form class="form">
@@ -21,10 +21,10 @@ describe("Testing the app functionality", () => {
     </div>
     <div id="results" class="main__results"></div>`;
 
-    const form = document.querySelector(".form");
-    const locationInput = document.getElementById("location").value;
-    const startDate = document.getElementById("start-date").value;
-    const endDate = document.getElementById("end-date").value;
+    const form = document.querySelector('.form');
+    const locationInput = document.getElementById('location').value;
+    const startDate = document.getElementById('start-date').value;
+    const endDate = document.getElementById('end-date').value;
 
     // If returns undefined, with no errors, it is working
     expect(getTravelResults).toBeUndefined();
