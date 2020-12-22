@@ -1,40 +1,40 @@
-const path = require("path");
+const path = require('path');
 // eslint-disable-next-line no-unused-vars
-const webpack = require("webpack");
-const HtmlWebPackPlugin = require("html-webpack-plugin");
-const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const webpack = require('webpack');
+const HtmlWebPackPlugin = require('html-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
-  mode: "development",
-  entry: "./src/client/index.js",
-  devtool: "source-map",
+  mode: 'development',
+  entry: './src/client/index.js',
+  devtool: 'source-map',
   devServer: {
-    contentBase: "./dist",
+    contentBase: './dist',
   },
-  stats: "verbose",
+  stats: 'verbose',
   output: {
-    filename: "bundle.min.js",
-    path: path.resolve(__dirname, "dist"),
+    filename: 'bundle.min.js',
+    path: path.resolve(__dirname, 'dist'),
   },
   module: {
     rules: [
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        loader: "babel-loader",
+        loader: 'babel-loader',
       },
       {
         test: /\.scss$/,
-        use: ["style-loader", "css-loader", "sass-loader"],
+        use: ['style-loader', 'css-loader', 'sass-loader'],
       },
       {
         test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
         use: [
           {
-            loader: "file-loader",
+            loader: 'file-loader',
             options: {
-              name: "[name].[ext]",
-              outputPath: "fonts/",
+              name: '[name].[ext]',
+              outputPath: 'fonts/',
             },
           },
         ],
@@ -43,8 +43,8 @@ module.exports = {
   },
   plugins: [
     new HtmlWebPackPlugin({
-      template: "./src/client/views/index.html",
-      filename: "./index.html",
+      template: './src/client/views/index.html',
+      filename: './index.html',
     }),
     new CleanWebpackPlugin({
       // Simulate the removal of files

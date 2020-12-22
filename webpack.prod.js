@@ -1,7 +1,7 @@
-// eslint-disable-next-line no-unused-vars
-const path = require('path');
-// eslint-disable-next-line no-unused-vars
+/* eslint-disable */
 const webpack = require('webpack');
+const path = require('path');
+/* eslint-enable */
 const HtmlWebPackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
