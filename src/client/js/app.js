@@ -179,16 +179,6 @@ const getTravelResults = document.addEventListener(
             .then(() => appView.render());
         });
       },
-      toDoList() {
-        appView.form.addEventListener('submit', () => {
-          // Adding timeout because the 'span' event depends on the creation
-          // of the element, which occurs when the form is submitted.
-          setTimeout(() => {
-            console.log('Ready.');
-            toDoView.init();
-          }, 4000);
-        });
-      },
     };
 
     /* ======= APIS ======= */
@@ -410,6 +400,7 @@ const getTravelResults = document.addEventListener(
         /* eslint-enable prettier/prettier */
         appView.resultsDiv.style.display = 'grid';
         appView.resultsDiv.scrollIntoView({ behavior: 'smooth' });
+        toDoView.init();
       },
     };
 
