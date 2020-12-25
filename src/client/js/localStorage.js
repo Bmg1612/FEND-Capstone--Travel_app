@@ -82,7 +82,6 @@ const saveToDoData = () => {
     const itemWithoutSpan = item.childNodes[0];
     const toDo = itemWithoutSpan.textContent;
     localStorage.setItem(`toDoItem_${index + 1}`, toDo);
-    return true;
   }
   return true;
 };
