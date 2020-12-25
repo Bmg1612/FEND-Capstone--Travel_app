@@ -16,11 +16,11 @@ body {
 .grid__container {
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: 5% 85% 10%;
+  grid-template-rows: min-content;
   grid-template-areas:
-    "nav"
-    "main"
-    "footer";
+    'nav'
+    'main'
+    'footer';
   gap: 5px;
 }
 
@@ -55,10 +55,10 @@ main {
   .main__results {
     display: none;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 6fr;
+    grid-template-rows: min-content;
     grid-template-areas:
-      "heading heading"
-      "image   text";
+      'heading heading'
+      'image   text';
     border-top: 2px inset #ccc;
     h2 {
       grid-area: heading;
@@ -80,19 +80,19 @@ main {
     }
     @include for-phone-only {
       grid-template-columns: 1fr;
-      grid-template-rows: 16% 42% 42%;
+      grid-template-rows: min-content;
       grid-template-areas:
-        "heading"
-        "image"
-        "text";
+        'heading'
+        'image'
+        'text';
     }
     @include for-tablet-only {
       grid-template-columns: 1fr;
-      grid-template-rows: 16% 42% 42%;
+      grid-template-rows: min-content;
       grid-template-areas:
-        "heading"
-        "image"
-        "text";
+        'heading'
+        'image'
+        'text';
     }
   }
 }

@@ -57,7 +57,7 @@ const getTravelResults = document.addEventListener(
       init() {
         appView.init();
         this.mainFunction();
-        this.toDoList();
+        // this.toDoList();
       },
       /**
        * Changes the model.input properties to the values that the user entendered.
@@ -450,18 +450,16 @@ const getTravelResults = document.addEventListener(
          */
         this.addButton.addEventListener('click', () => {
           const li = document.createElement('li');
-          const allItems = document.querySelectorAll('li');
+          // const allItems = document.querySelectorAll('li');
           const inputValue = document.getElementById('myInput').value;
           li.textContent = inputValue;
           if (inputValue === '') {
             alert('You must write something!');
-          } else if (allItems.length <= 5) {
+          } else {
             document.getElementById('myUL').appendChild(li);
             if (storageAvailable('localStorage')) {
               saveToDoData();
             }
-          } else {
-            alert('There is no more space for items. Sorry!');
           }
           document.getElementById('myInput').value = '';
 
