@@ -57,7 +57,6 @@ const getTravelResults = document.addEventListener(
       init() {
         appView.init();
         this.mainFunction();
-        // this.toDoList();
       },
       /**
        * Changes the model.input properties to the values that the user entendered.
@@ -155,6 +154,11 @@ const getTravelResults = document.addEventListener(
         }
         appView.form.addEventListener('submit', async (event) => {
           event.preventDefault();
+
+          appView.resultsDiv.style.display = 'none';
+          appView.loader.style.display = 'inline-block';
+          appView.loader.scrollIntoView({ behavior: 'smooth' });
+
           this.setInputData();
           // Saving the input data on the Local Storage
           if (storageAvailable('localStorage')) {
@@ -189,7 +193,7 @@ const getTravelResults = document.addEventListener(
        * @returns {object} The object containing the desired latitude and longitude.
        */
       async geonamesApi() {
-        const url = `http://api.geonames.org/searchJSON?q=${model.input.location}&maxRows=1&username=bmg1612`;
+        const url = `https://secure.geonames.org/searchJSON?q=${model.input.location}&maxRows=1&username=bmg1612`;
         const req = await fetch(url);
         try {
           const data = await req.json();
@@ -199,7 +203,6 @@ const getTravelResults = document.addEventListener(
           };
           model.apiObjects.geonamesData = apiData;
           controller.setLatitudeAndLongitude();
-          console.log('::: Fetched data from Geonames API :::');
           return model.apiObjects.geonamesData;
         } catch (error) {
           alert('There was an error:', error.message);
@@ -213,11 +216,10 @@ const getTravelResults = document.addEventListener(
        */
       async weatherbitApi() {
         // Getting API key from the server
-        const req = await fetch('http://localhost:8081/api');
+        const req = await fetch('/api');
         try {
           const data = await req.json();
           model.apiData.apiKey = data.weatherKey;
-          console.log('::: Got the key of Weatherbit API :::');
 
           // Getting the API data //
 
@@ -229,7 +231,6 @@ const getTravelResults = document.addEventListener(
             const url = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${model.apiData.latitude}&lon=${model.apiData.longitude}&key=${model.apiData.apiKey}`;
             const res = await fetch(url);
             model.apiObjects.apiResponse = await res.json();
-            console.log('::: Fetched data from Weatherbit API :::');
             // Getting only the data that I will use in the new object
             model.apiObjects.weatherResponse = {
               city_name: model.apiObjects.apiResponse.city_name,
@@ -254,28 +255,43 @@ const getTravelResults = document.addEventListener(
              * It will fetch the weather from the same date last year
              */
           } else if (model.input.startDate > model.dates.twoWeeksFromNow) {
-            const url = `https://api.weatherbit.io/v2.0/history/hourly?lat=${model.apiData.latitude}&lon=${model.apiData.longitude}&start_date=${model.dates.lastYearStartDate}&end_date=${model.dates.lastYearEndDate}&key=${model.apiData.apiKey}`;
-            const res = await fetch(url);
-            model.apiObjects.apiResponse = await res.json();
-            console.log('::: Fetched data from Weatherbit API :::');
-            // Getting only the data that I will use in the new object
-            model.apiObjects.weatherResponse = {
-              city_name: model.apiObjects.apiResponse.city_name,
-              country_code: model.apiObjects.apiResponse.country_code,
-              temp: model.apiObjects.apiResponse.data.temp,
-              app_temp: model.apiObjects.apiResponse.data.app_temp,
-              weather: {
-                description:
-                  model.apiObjects.apiResponse.data[8].weather.description,
-              },
-            };
-            return model.apiObjects.weatherResponse;
+            try {
+              const url = `https://api.weatherbit.io/v2.0/history/hourly?lat=${model.apiData.latitude}&lon=${model.apiData.longitude}&start_date=${model.dates.lastYearStartDate}&end_date=${model.dates.lastYearEndDate}&key=${model.apiData.apiKey}`;
+              const res = await fetch(url);
+              model.apiObjects.apiResponse = await res.json();
+              // Getting only the data that I will use in the new object
+              model.apiObjects.weatherResponse = {
+                city_name: model.apiObjects.apiResponse.city_name,
+                country_code: model.apiObjects.apiResponse.country_code,
+                temp: model.apiObjects.apiResponse.data.temp,
+                app_temp: model.apiObjects.apiResponse.data.app_temp,
+                weather: {
+                  description:
+                    model.apiObjects.apiResponse.data[8].weather.description,
+                },
+              };
+              return model.apiObjects.weatherResponse;
+            } catch (error) {
+              const url = `https://api.weatherbit.io/v2.0/current?lat=${model.apiData.latitude}&lon=${model.apiData.longitude}&key=${model.apiData.apiKey}`;
+              const res = await fetch(url);
+              model.apiObjects.apiResponse = await res.json();
+              model.apiObjects.weatherResponse = {
+                city_name: model.apiObjects.apiResponse.data[0].city_name,
+                country_code: model.apiObjects.apiResponse.data[0].country_code,
+                temp: model.apiObjects.apiResponse.data[0].temp,
+                app_temp: model.apiObjects.apiResponse.data[0].app_temp,
+                weather: {
+                  description:
+                    model.apiObjects.apiResponse.data[0].weather.description,
+                },
+              };
+              return model.apiObjects.weatherResponse;
+            }
             // If the trip is this week
           } else {
             const url = `https://api.weatherbit.io/v2.0/current?lat=${model.apiData.latitude}&lon=${model.apiData.longitude}&key=${model.apiData.apiKey}`;
             const res = await fetch(url);
             model.apiObjects.apiResponse = await res.json();
-            console.log('::: Fetched data from Weatherbit API :::');
             model.apiObjects.weatherResponse = {
               city_name: model.apiObjects.apiResponse.data[0].city_name,
               country_code: model.apiObjects.apiResponse.data[0].country_code,
@@ -301,16 +317,14 @@ const getTravelResults = document.addEventListener(
        */
       async pixabayApi() {
         // Getting API key from the server
-        const req = await fetch('http://localhost:8081/api');
+        const req = await fetch('/api');
         try {
           const data = await req.json();
           model.apiData.apiKey = data.photoKey;
-          console.log('::: Got the key of Pixabay API :::');
           // Fetching data
           const url = `https://pixabay.com/api/?key=${model.apiData.apiKey}&q=${model.apiObjects.weatherResponse.city_name}&image_type=photo`;
           const res = await fetch(url);
           model.apiObjects.apiResponse = await res.json();
-          console.log('::: Fetched data from Pixabay API :::');
           /* If it is a big city, there will be 20 'hits' photos
            * Then it will be randomly chosen
            */
@@ -363,6 +377,7 @@ const getTravelResults = document.addEventListener(
     const appView = {
       init() {
         this.form = document.querySelector('.form');
+        this.loader = document.querySelector('.loader');
         this.resultsDiv = document.getElementById('results');
       },
 
@@ -398,6 +413,8 @@ const getTravelResults = document.addEventListener(
           preFillToDoData();
         }
         /* eslint-enable prettier/prettier */
+        appView.loader.style.display = '';
+        appView.resultsDiv.style.display = '';
         appView.resultsDiv.style.display = 'grid';
         appView.resultsDiv.scrollIntoView({ behavior: 'smooth' });
         toDoView.init();
