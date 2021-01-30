@@ -194,8 +194,8 @@ const getTravelResults = document.addEventListener(
        */
       async geonamesApi() {
         const url = `https://secure.geonames.org/searchJSON?q=${model.input.location}&maxRows=1&username=bmg1612`;
-        const req = await fetch(url);
         try {
+          const req = await fetch(url);
           const data = await req.json();
           const apiData = {
             latitude: data.geonames[0].lat,
@@ -204,8 +204,11 @@ const getTravelResults = document.addEventListener(
           model.apiObjects.geonamesData = apiData;
           controller.setLatitudeAndLongitude();
           return model.apiObjects.geonamesData;
-        } catch (error) {
-          alert('There was an error:', error.message);
+        } catch (e) {
+          document.getElementById('results').innerHTML =
+            '<h3 class="error"><strong>Error!</strong> Sorry, there was an internal error, can you please reload the page and try again?</h3>';
+          document.querySelector('.loader').style.display = '';
+          document.getElementById('results').style.display = 'block';
           return false;
         }
       },
@@ -215,9 +218,9 @@ const getTravelResults = document.addEventListener(
        * @returns {object} The object containing the desired weather and city/country data.
        */
       async weatherbitApi() {
-        // Getting API key from the server
-        const req = await fetch('/api');
         try {
+          // Getting API key from the server
+          const req = await fetch('/api');
           const data = await req.json();
           model.apiData.apiKey = data.weatherKey;
 
@@ -304,8 +307,11 @@ const getTravelResults = document.addEventListener(
             };
             return model.apiObjects.weatherResponse;
           }
-        } catch (error) {
-          alert('There was an error:', error.message);
+        } catch (e) {
+          document.getElementById('results').innerHTML =
+            '<h3 class="error"><strong>Error!</strong> Sorry, there was an internal error, can you please reload the page and try again?</h3>';
+          document.querySelector('.loader').style.display = '';
+          document.getElementById('results').style.display = 'block';
           return false;
         }
       },
@@ -316,9 +322,9 @@ const getTravelResults = document.addEventListener(
        * @returns {object} The object containing the photo.
        */
       async pixabayApi() {
-        // Getting API key from the server
-        const req = await fetch('/api');
         try {
+          // Getting API key from the server
+          const req = await fetch('/api');
           const data = await req.json();
           model.apiData.apiKey = data.photoKey;
           // Fetching data
@@ -342,8 +348,11 @@ const getTravelResults = document.addEventListener(
               model.apiObjects.apiResponse.hits[0].webformatURL;
             return model.apiObjects.photoResponse;
           }
-        } catch (error) {
-          alert('There was an error:', error.message);
+        } catch (e) {
+          document.getElementById('results').innerHTML =
+            '<h3 class="error"><strong>Error!</strong> Sorry, there was an internal error, can you please reload the page and try again?</h3>';
+          document.querySelector('.loader').style.display = '';
+          document.getElementById('results').style.display = 'block';
           return false;
         }
       },
@@ -366,8 +375,11 @@ const getTravelResults = document.addEventListener(
         try {
           model.apiObjects.newData = await res.json();
           return model.apiObjects.newData;
-        } catch (error) {
-          alert('There was an error:', error.message);
+        } catch (e) {
+          document.getElementById('results').innerHTML =
+            '<h3 class="error"><strong>Error!</strong> Sorry, there was an internal error, can you please reload the page and try again?</h3>';
+          document.querySelector('.loader').style.display = '';
+          document.getElementById('results').style.display = 'block';
           return false;
         }
       },
