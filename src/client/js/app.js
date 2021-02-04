@@ -180,7 +180,14 @@ const getTravelResults = document.addEventListener(
                 photo: model.apiObjects.photoResponse,
               })
             )
-            .then(() => appView.render());
+            .then(() => appView.render())
+            .catch(() => {
+              document.getElementById('error').innerHTML =
+                '<h3 class="error"><strong>Error!</strong> Sorry, there was an internal error, can you please reload the page and try again?</h3>';
+              document.querySelector('.loader').style.display = '';
+              document.getElementById('error').style.display = 'block';
+              return false;
+            });
         });
       },
     };
@@ -194,23 +201,15 @@ const getTravelResults = document.addEventListener(
        */
       async geonamesApi() {
         const url = `https://secure.geonames.org/searchJSON?q=${model.input.location}&maxRows=1&username=bmg1612`;
-        try {
-          const req = await fetch(url);
-          const data = await req.json();
-          const apiData = {
-            latitude: data.geonames[0].lat,
-            longitude: data.geonames[0].lng,
-          };
-          model.apiObjects.geonamesData = apiData;
-          controller.setLatitudeAndLongitude();
-          return model.apiObjects.geonamesData;
-        } catch (e) {
-          document.getElementById('error').innerHTML =
-            '<h3 class="error"><strong>Error!</strong> Sorry, there was an internal error, can you please reload the page and try again?</h3>';
-          document.querySelector('.loader').style.display = '';
-          document.getElementById('error').style.display = 'block';
-          return false;
-        }
+        const req = await fetch(url);
+        const data = await req.json();
+        const apiData = {
+          latitude: data.geonames[0].lat,
+          longitude: data.geonames[0].lng,
+        };
+        model.apiObjects.geonamesData = apiData;
+        controller.setLatitudeAndLongitude();
+        return model.apiObjects.geonamesData;
       },
       /**
        * Fetches weather and city/country data from weatherbit API.
@@ -218,80 +217,62 @@ const getTravelResults = document.addEventListener(
        * @returns {object} The object containing the desired weather and city/country data.
        */
       async weatherbitApi() {
-        try {
-          // Getting API key from the server
-          const req = await fetch('/api');
-          const data = await req.json();
-          model.apiData.apiKey = data.weatherKey;
+        // Getting API key from the server
+        const req = await fetch('/api');
+        const data = await req.json();
+        model.apiData.apiKey = data.weatherKey;
 
-          // Getting the API data //
+        // Getting the API data //
 
-          // If the trip between next week and 16 days
-          if (
-            model.input.startDate > model.dates.nextWeek &&
-            model.input.startDate <= model.dates.twoWeeksFromNow
-          ) {
-            const url = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${model.apiData.latitude}&lon=${model.apiData.longitude}&key=${model.apiData.apiKey}`;
+        // If the trip between next week and 16 days
+        if (
+          model.input.startDate > model.dates.nextWeek &&
+          model.input.startDate <= model.dates.twoWeeksFromNow
+        ) {
+          const url = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${model.apiData.latitude}&lon=${model.apiData.longitude}&key=${model.apiData.apiKey}`;
+          const res = await fetch(url);
+          model.apiObjects.apiResponse = await res.json();
+          // Getting only the data that I will use in the new object
+          model.apiObjects.weatherResponse = {
+            city_name: model.apiObjects.apiResponse.city_name,
+            country_code: model.apiObjects.apiResponse.country_code,
+            // Getting the array n. 8 because it is on the middle of 16
+            temp: model.apiObjects.apiResponse.data[8].temp,
+            // Simulating apparent temperature, since it is not given in this response
+            app_temp: (
+              (model.apiObjects.apiResponse.data[8].app_max_temp +
+                // eslint-disable-next-line prettier/prettier
+                model.apiObjects.apiResponse.data[10].app_min_temp) /
+              2
+            ).toFixed(1),
+            weather: {
+              description:
+                model.apiObjects.apiResponse.data[8].weather.description,
+            },
+          };
+          return model.apiObjects.weatherResponse;
+          /* In case the trip is after 16 days from now
+           * In this case, this API limits to one request per day in the free version
+           * It will fetch the weather from the same date last year
+           */
+        } else if (model.input.startDate > model.dates.twoWeeksFromNow) {
+          try {
+            const url = `https://api.weatherbit.io/v2.0/history/hourly?lat=${model.apiData.latitude}&lon=${model.apiData.longitude}&start_date=${model.dates.lastYearStartDate}&end_date=${model.dates.lastYearEndDate}&key=${model.apiData.apiKey}`;
             const res = await fetch(url);
             model.apiObjects.apiResponse = await res.json();
             // Getting only the data that I will use in the new object
             model.apiObjects.weatherResponse = {
               city_name: model.apiObjects.apiResponse.city_name,
               country_code: model.apiObjects.apiResponse.country_code,
-              // Getting the array n. 8 because it is on the middle of 16
-              temp: model.apiObjects.apiResponse.data[8].temp,
-              // Simulating apparent temperature, since it is not given in this response
-              app_temp: (
-                (model.apiObjects.apiResponse.data[8].app_max_temp +
-                  // eslint-disable-next-line prettier/prettier
-                  model.apiObjects.apiResponse.data[10].app_min_temp) /
-                2
-              ).toFixed(1),
+              temp: model.apiObjects.apiResponse.data.temp,
+              app_temp: model.apiObjects.apiResponse.data.app_temp,
               weather: {
                 description:
                   model.apiObjects.apiResponse.data[8].weather.description,
               },
             };
             return model.apiObjects.weatherResponse;
-            /* In case the trip is after 16 days from now
-             * In this case, this API limits to one request per day in the free version
-             * It will fetch the weather from the same date last year
-             */
-          } else if (model.input.startDate > model.dates.twoWeeksFromNow) {
-            try {
-              const url = `https://api.weatherbit.io/v2.0/history/hourly?lat=${model.apiData.latitude}&lon=${model.apiData.longitude}&start_date=${model.dates.lastYearStartDate}&end_date=${model.dates.lastYearEndDate}&key=${model.apiData.apiKey}`;
-              const res = await fetch(url);
-              model.apiObjects.apiResponse = await res.json();
-              // Getting only the data that I will use in the new object
-              model.apiObjects.weatherResponse = {
-                city_name: model.apiObjects.apiResponse.city_name,
-                country_code: model.apiObjects.apiResponse.country_code,
-                temp: model.apiObjects.apiResponse.data.temp,
-                app_temp: model.apiObjects.apiResponse.data.app_temp,
-                weather: {
-                  description:
-                    model.apiObjects.apiResponse.data[8].weather.description,
-                },
-              };
-              return model.apiObjects.weatherResponse;
-            } catch (error) {
-              const url = `https://api.weatherbit.io/v2.0/current?lat=${model.apiData.latitude}&lon=${model.apiData.longitude}&key=${model.apiData.apiKey}`;
-              const res = await fetch(url);
-              model.apiObjects.apiResponse = await res.json();
-              model.apiObjects.weatherResponse = {
-                city_name: model.apiObjects.apiResponse.data[0].city_name,
-                country_code: model.apiObjects.apiResponse.data[0].country_code,
-                temp: model.apiObjects.apiResponse.data[0].temp,
-                app_temp: model.apiObjects.apiResponse.data[0].app_temp,
-                weather: {
-                  description:
-                    model.apiObjects.apiResponse.data[0].weather.description,
-                },
-              };
-              return model.apiObjects.weatherResponse;
-            }
-            // If the trip is this week
-          } else {
+          } catch (error) {
             const url = `https://api.weatherbit.io/v2.0/current?lat=${model.apiData.latitude}&lon=${model.apiData.longitude}&key=${model.apiData.apiKey}`;
             const res = await fetch(url);
             model.apiObjects.apiResponse = await res.json();
@@ -307,12 +288,22 @@ const getTravelResults = document.addEventListener(
             };
             return model.apiObjects.weatherResponse;
           }
-        } catch (e) {
-          document.getElementById('error').innerHTML =
-            '<h3 class="error"><strong>Error!</strong> Sorry, there was an internal error, can you please reload the page and try again?</h3>';
-          document.querySelector('.loader').style.display = '';
-          document.getElementById('error').style.display = 'block';
-          return false;
+          // If the trip is this week
+        } else {
+          const url = `https://api.weatherbit.io/v2.0/current?lat=${model.apiData.latitude}&lon=${model.apiData.longitude}&key=${model.apiData.apiKey}`;
+          const res = await fetch(url);
+          model.apiObjects.apiResponse = await res.json();
+          model.apiObjects.weatherResponse = {
+            city_name: model.apiObjects.apiResponse.data[0].city_name,
+            country_code: model.apiObjects.apiResponse.data[0].country_code,
+            temp: model.apiObjects.apiResponse.data[0].temp,
+            app_temp: model.apiObjects.apiResponse.data[0].app_temp,
+            weather: {
+              description:
+                model.apiObjects.apiResponse.data[0].weather.description,
+            },
+          };
+          return model.apiObjects.weatherResponse;
         }
       },
 
@@ -322,38 +313,30 @@ const getTravelResults = document.addEventListener(
        * @returns {object} The object containing the photo.
        */
       async pixabayApi() {
-        try {
-          // Getting API key from the server
-          const req = await fetch('/api');
-          const data = await req.json();
-          model.apiData.apiKey = data.photoKey;
-          // Fetching data
-          const url = `https://pixabay.com/api/?key=${model.apiData.apiKey}&q=${model.apiObjects.weatherResponse.city_name}&image_type=photo`;
-          const res = await fetch(url);
-          model.apiObjects.apiResponse = await res.json();
-          /* If it is a big city, there will be 20 'hits' photos
-           * Then it will be randomly chosen
+        // Getting API key from the server
+        const req = await fetch('/api');
+        const data = await req.json();
+        model.apiData.apiKey = data.photoKey;
+        // Fetching data
+        const url = `https://pixabay.com/api/?key=${model.apiData.apiKey}&q=${model.apiObjects.weatherResponse.city_name}&image_type=photo`;
+        const res = await fetch(url);
+        model.apiObjects.apiResponse = await res.json();
+        /* If it is a big city, there will be 20 'hits' photos
+         * Then it will be randomly chosen
+         */
+        if (model.apiObjects.apiResponse.hits.length === 20) {
+          model.apiObjects.photoResponse =
+            model.apiObjects.apiResponse.hits[
+              Math.floor(Math.random() * 21)
+            ].webformatURL;
+          return model.apiObjects.photoResponse;
+          /* If it is a smaller city with less than 20 hits
+           * The first one is chosen
            */
-          if (model.apiObjects.apiResponse.hits.length === 20) {
-            model.apiObjects.photoResponse =
-              model.apiObjects.apiResponse.hits[
-                Math.floor(Math.random() * 21)
-              ].webformatURL;
-            return model.apiObjects.photoResponse;
-            /* If it is a smaller city with less than 20 hits
-             * The first one is chosen
-             */
-          } else {
-            model.apiObjects.photoResponse =
-              model.apiObjects.apiResponse.hits[0].webformatURL;
-            return model.apiObjects.photoResponse;
-          }
-        } catch (e) {
-          document.getElementById('error').innerHTML =
-            '<h3 class="error"><strong>Error!</strong> Sorry, there was an error fetching the image, can you please reload the page and try again?</h3>';
-          document.querySelector('.loader').style.display = '';
-          document.getElementById('error').style.display = 'block';
-          return false;
+        } else {
+          model.apiObjects.photoResponse =
+            model.apiObjects.apiResponse.hits[0].webformatURL;
+          return model.apiObjects.photoResponse;
         }
       },
 
@@ -372,16 +355,8 @@ const getTravelResults = document.addEventListener(
           body: JSON.stringify(data),
         });
 
-        try {
-          model.apiObjects.newData = await res.json();
-          return model.apiObjects.newData;
-        } catch (e) {
-          document.getElementById('error').innerHTML =
-            '<h3 class="error"><strong>Error!</strong> Sorry, there was an error fetching the image, can you please reload the page and try again?</h3>';
-          document.querySelector('.loader').style.display = '';
-          document.getElementById('error').style.display = 'block';
-          return false;
-        }
+        model.apiObjects.newData = await res.json();
+        return model.apiObjects.newData;
       },
     };
 
