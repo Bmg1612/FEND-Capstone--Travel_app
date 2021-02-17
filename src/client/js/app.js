@@ -11,44 +11,14 @@ const getTravelResults = document.addEventListener(
   async () => {
     /* ======= Model ======= */
     const model = {
-      // Input values
-      input: {
-        location: null,
-        startDate: null,
-        endDate: null,
-      },
-      dates: {
-        today: null,
-        nextWeek: null,
-        twoWeeksFromNow: null,
-        lastYearStartDate: null,
-        lastYearEndDate: null,
-      },
+      input: {},
+      dates: {},
       // dates in the Date() format
-      converted: {
-        convertedToday: null,
-        convertedStartDate: null,
-        convertedEndDate: null,
-      },
-      differenceDays: {
-        // Length of the trip
-        diffTimeTrip: null,
-        diffDaysTrip: null,
-        // Cowntodown to trip
-        diffTimeCountdown: null,
-        diffDaysCountdown: null,
-      },
-      apiObjects: {
-        geonamesData: {},
-        apiResponse: {},
-        weatherResponse: {},
-        photoResponse: {},
-        newData: {},
-      },
+      converted: {},
+      differenceDays: {},
+      apiObjects: {},
       apiData: {
         apikey: '',
-        latitude: null,
-        longitude: null,
       },
     };
 
