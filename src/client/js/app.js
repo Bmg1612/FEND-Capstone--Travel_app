@@ -16,7 +16,6 @@ const getTravelResults = document.addEventListener(
       // dates in the Date() format
       converted: {},
       differenceDays: {},
-      apiObjects: {},
       apiData: {
         apikey: '',
       },
@@ -27,6 +26,12 @@ const getTravelResults = document.addEventListener(
       init() {
         appView.init();
         this.mainFunction();
+      },
+      async getData(urlToFetch) {
+        const res = await fetch(urlToFetch);
+        model.apiData.apiResponse = await res.json();
+
+        return model.apiData.apiResponse;
       },
       /**
        * Changes the model.input properties to the values that the user entendered.
@@ -42,8 +47,8 @@ const getTravelResults = document.addEventListener(
        * @returns {void} Nothing.
        */
       setLatitudeAndLongitude() {
-        model.apiData.latitude = model.apiObjects.geonamesData.latitude;
-        model.apiData.longitude = model.apiObjects.geonamesData.longitude;
+        model.apiData.latitude = model.apiData.geonamesData.latitude;
+        model.apiData.longitude = model.apiData.geonamesData.longitude;
       },
       /**
        * All the functions related to dates of the weatherbit api.
@@ -141,13 +146,12 @@ const getTravelResults = document.addEventListener(
             .then(() => apis.pixabayApi())
             .then(() =>
               apis.postData('/addText', {
-                city_name: model.apiObjects.weatherResponse.city_name,
-                country_code: model.apiObjects.weatherResponse.country_code,
-                temp: model.apiObjects.weatherResponse.temp,
-                app_temp: model.apiObjects.weatherResponse.app_temp,
-                description:
-                  model.apiObjects.weatherResponse.weather.description,
-                photo: model.apiObjects.photoResponse,
+                city_name: model.apiData.weatherResponse.city_name,
+                country_code: model.apiData.weatherResponse.country_code,
+                temp: model.apiData.weatherResponse.temp,
+                app_temp: model.apiData.weatherResponse.app_temp,
+                description: model.apiData.weatherResponse.weather.description,
+                photo: model.apiData.photoResponse,
               })
             )
             .then(() => appView.render())
@@ -170,16 +174,15 @@ const getTravelResults = document.addEventListener(
        * @returns {object} The object containing the desired latitude and longitude.
        */
       async geonamesApi() {
-        const url = `https://secure.geonames.org/searchJSON?q=${model.input.location}&maxRows=1&username=bmg1612`;
-        const req = await fetch(url);
-        const data = await req.json();
-        const apiData = {
-          latitude: data.geonames[0].lat,
-          longitude: data.geonames[0].lng,
+        await controller.getData(
+          `https://secure.geonames.org/searchJSON?q=${model.input.location}&maxRows=1&username=bmg1612`
+        );
+        model.apiData.geonamesData = {
+          latitude: model.apiData.apiResponse.geonames[0].lat,
+          longitude: model.apiData.apiResponse.geonames[0].lng,
         };
-        model.apiObjects.geonamesData = apiData;
         controller.setLatitudeAndLongitude();
-        return model.apiObjects.geonamesData;
+        return model.apiData.geonamesData;
       },
       /**
        * Fetches weather and city/country data from weatherbit API.
@@ -199,81 +202,81 @@ const getTravelResults = document.addEventListener(
           model.input.startDate > model.dates.nextWeek &&
           model.input.startDate <= model.dates.twoWeeksFromNow
         ) {
-          const url = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${model.apiData.latitude}&lon=${model.apiData.longitude}&key=${model.apiData.apiKey}`;
-          const res = await fetch(url);
-          model.apiObjects.apiResponse = await res.json();
+          await controller.getData(
+            `https://api.weatherbit.io/v2.0/forecast/daily?lat=${model.apiData.latitude}&lon=${model.apiData.longitude}&key=${model.apiData.apiKey}`
+          );
           // Getting only the data that I will use in the new object
-          model.apiObjects.weatherResponse = {
-            city_name: model.apiObjects.apiResponse.city_name,
-            country_code: model.apiObjects.apiResponse.country_code,
+          model.apiData.weatherResponse = {
+            city_name: model.apiData.apiResponse.city_name,
+            country_code: model.apiData.apiResponse.country_code,
             // Getting the array n. 8 because it is on the middle of 16
-            temp: model.apiObjects.apiResponse.data[8].temp,
+            temp: model.apiData.apiResponse.data[8].temp,
             // Simulating apparent temperature, since it is not given in this response
             app_temp: (
-              (model.apiObjects.apiResponse.data[8].app_max_temp +
+              (model.apiData.apiResponse.data[8].app_max_temp +
                 // eslint-disable-next-line prettier/prettier
-                model.apiObjects.apiResponse.data[10].app_min_temp) /
+                model.apiData.apiResponse.data[10].app_min_temp) /
               2
             ).toFixed(1),
             weather: {
               description:
-                model.apiObjects.apiResponse.data[8].weather.description,
+                model.apiData.apiResponse.data[8].weather.description,
             },
           };
-          return model.apiObjects.weatherResponse;
+          return model.apiData.weatherResponse;
           /* In case the trip is after 16 days from now
            * In this case, this API limits to one request per day in the free version
            * It will fetch the weather from the same date last year
            */
         } else if (model.input.startDate > model.dates.twoWeeksFromNow) {
           try {
-            const url = `https://api.weatherbit.io/v2.0/history/hourly?lat=${model.apiData.latitude}&lon=${model.apiData.longitude}&start_date=${model.dates.lastYearStartDate}&end_date=${model.dates.lastYearEndDate}&key=${model.apiData.apiKey}`;
-            const res = await fetch(url);
-            model.apiObjects.apiResponse = await res.json();
+            await controller.getData(
+              `https://api.weatherbit.io/v2.0/history/hourly?lat=${model.apiData.latitude}&lon=${model.apiData.longitude}&start_date=${model.dates.lastYearStartDate}&end_date=${model.dates.lastYearEndDate}&key=${model.apiData.apiKey}`
+            );
             // Getting only the data that I will use in the new object
-            model.apiObjects.weatherResponse = {
-              city_name: model.apiObjects.apiResponse.city_name,
-              country_code: model.apiObjects.apiResponse.country_code,
-              temp: model.apiObjects.apiResponse.data.temp,
-              app_temp: model.apiObjects.apiResponse.data.app_temp,
+            model.apiData.weatherResponse = {
+              city_name: model.apiData.apiResponse.city_name,
+              country_code: model.apiData.apiResponse.country_code,
+              temp: model.apiData.apiResponse.data.temp,
+              app_temp: model.apiData.apiResponse.data.app_temp,
               weather: {
                 description:
-                  model.apiObjects.apiResponse.data[8].weather.description,
+                  model.apiData.apiResponse.data[8].weather.description,
               },
             };
-            return model.apiObjects.weatherResponse;
+            return model.apiData.weatherResponse;
           } catch (error) {
-            const url = `https://api.weatherbit.io/v2.0/current?lat=${model.apiData.latitude}&lon=${model.apiData.longitude}&key=${model.apiData.apiKey}`;
-            const res = await fetch(url);
-            model.apiObjects.apiResponse = await res.json();
-            model.apiObjects.weatherResponse = {
-              city_name: model.apiObjects.apiResponse.data[0].city_name,
-              country_code: model.apiObjects.apiResponse.data[0].country_code,
-              temp: model.apiObjects.apiResponse.data[0].temp,
-              app_temp: model.apiObjects.apiResponse.data[0].app_temp,
+            await controller.getData(
+              `https://api.weatherbit.io/v2.0/current?lat=${model.apiData.latitude}&lon=${model.apiData.longitude}&key=${model.apiData.apiKey}`
+            );
+            model.apiData.weatherResponse = {
+              city_name: model.apiData.apiResponse.data[0].city_name,
+              country_code: model.apiData.apiResponse.data[0].country_code,
+              temp: model.apiData.apiResponse.data[0].temp,
+              app_temp: model.apiData.apiResponse.data[0].app_temp,
               weather: {
                 description:
-                  model.apiObjects.apiResponse.data[0].weather.description,
+                  model.apiData.apiResponse.data[0].weather.description,
               },
             };
-            return model.apiObjects.weatherResponse;
+            return model.apiData.weatherResponse;
           }
           // If the trip is this week
         } else {
-          const url = `https://api.weatherbit.io/v2.0/current?lat=${model.apiData.latitude}&lon=${model.apiData.longitude}&key=${model.apiData.apiKey}`;
-          const res = await fetch(url);
-          model.apiObjects.apiResponse = await res.json();
-          model.apiObjects.weatherResponse = {
-            city_name: model.apiObjects.apiResponse.data[0].city_name,
-            country_code: model.apiObjects.apiResponse.data[0].country_code,
-            temp: model.apiObjects.apiResponse.data[0].temp,
-            app_temp: model.apiObjects.apiResponse.data[0].app_temp,
+          await controller.getData(
+            `https://api.weatherbit.io/v2.0/current?lat=${model.apiData.latitude}&lon=${model.apiData.longitude}&key=${model.apiData.apiKey}`
+          );
+          model.apiData.weatherResponse = {
+            city_name: model.apiData.apiResponse.data[0].city_name,
+            country_code: model.apiData.apiResponse.data[0].country_code,
+            temp: model.apiData.apiResponse.data[0].temp,
+            app_temp: model.apiData.apiResponse.data[0].app_temp,
             weather: {
               description:
-                model.apiObjects.apiResponse.data[0].weather.description,
+                model.apiData.apiResponse.data[0].weather.description,
             },
           };
-          return model.apiObjects.weatherResponse;
+          return model.apiData.weatherResponse;
         }
       },
 
@@ -288,25 +291,25 @@ const getTravelResults = document.addEventListener(
         const data = await req.json();
         model.apiData.apiKey = data.photoKey;
         // Fetching data
-        const url = `https://pixabay.com/api/?key=${model.apiData.apiKey}&q=${model.apiObjects.weatherResponse.city_name}&image_type=photo`;
-        const res = await fetch(url);
-        model.apiObjects.apiResponse = await res.json();
+        await controller.getData(
+          `https://pixabay.com/api/?key=${model.apiData.apiKey}&q=${model.apiData.weatherResponse.city_name}&image_type=photo`
+        );
         /* If it is a big city, there will be 20 'hits' photos
          * Then it will be randomly chosen
          */
-        if (model.apiObjects.apiResponse.hits.length === 20) {
-          model.apiObjects.photoResponse =
-            model.apiObjects.apiResponse.hits[
+        if (model.apiData.apiResponse.hits.length === 20) {
+          model.apiData.photoResponse =
+            model.apiData.apiResponse.hits[
               Math.floor(Math.random() * 21)
             ].webformatURL;
-          return model.apiObjects.photoResponse;
+          return model.apiData.photoResponse;
           /* If it is a smaller city with less than 20 hits
            * The first one is chosen
            */
         } else {
-          model.apiObjects.photoResponse =
-            model.apiObjects.apiResponse.hits[0].webformatURL;
-          return model.apiObjects.photoResponse;
+          model.apiData.photoResponse =
+            model.apiData.apiResponse.hits[0].webformatURL;
+          return model.apiData.photoResponse;
         }
       },
 
@@ -325,8 +328,8 @@ const getTravelResults = document.addEventListener(
           body: JSON.stringify(data),
         });
 
-        model.apiObjects.newData = await res.json();
-        return model.apiObjects.newData;
+        model.apiData.newData = await res.json();
+        return model.apiData.newData;
       },
     };
 
@@ -346,18 +349,18 @@ const getTravelResults = document.addEventListener(
       render() {
         // prettier-ignore
         appView.resultsDiv.innerHTML = `
-        <h2>Your trip to ${model.apiObjects.newData.city_name}</h2>
+        <h2>Your trip to ${model.apiData.newData.city_name}</h2>
         <div class="results__image">
-          <img src="${model.apiObjects.newData.photo}" alt="Photo of ${model.apiObjects.newData.city_name} from Pixabay">
+          <img src="${model.apiData.newData.photo}" alt="Photo of ${model.apiData.newData.city_name} from Pixabay">
         </div>;  
         <div class="results__text">
-          <p>Typically, the weather for ${model.apiObjects.newData.city_name}/${model.apiObjects.newData.country_code}
-             on the desired  date is ${model.apiObjects.newData.temperature}ºC with ${model.apiObjects.newData.description.toLowerCase()}
-            and apparent temperature of ${model.apiObjects.newData.app_temp}ºC.
+          <p>Typically, the weather for ${model.apiData.newData.city_name}/${model.apiData.newData.country_code}
+             on the desired  date is ${model.apiData.newData.temperature}ºC with ${model.apiData.newData.description.toLowerCase()}
+            and apparent temperature of ${model.apiData.newData.app_temp}ºC.
           </p>
           <p><a href="https://www.weatherbit.io/" target="_blank">Source</a></p>
           <br>
-          <p>Countdown: In ${model.differenceDays.diffDaysCountdown} days you will be in ${model.apiObjects.newData.city_name}!
+          <p>Countdown: In ${model.differenceDays.diffDaysCountdown} days you will be in ${model.apiData.newData.city_name}!
              You will stay there for ${model.differenceDays.diffDaysTrip} days!</p>
           <h3>To-do List</h3>
           <div class="toDo__header">
