@@ -12,9 +12,6 @@ const getTravelResults = document.addEventListener(
     /* ======= Model ======= */
     const model = {
       input: {},
-      dates: {},
-      // dates in the Date() format
-      converted: {},
       differenceDays: {},
       apiData: {
         apikey: '',
@@ -50,79 +47,6 @@ const getTravelResults = document.addEventListener(
         model.apiData.latitude = model.apiData.geonamesData.latitude;
         model.apiData.longitude = model.apiData.geonamesData.longitude;
       },
-      /**
-       * All the functions related to dates of the weatherbit api.
-       * @returns {void} Nothing.
-       */
-      setDates() {
-        // Getting the dates
-        model.dates.today = new Date();
-        model.dates.nextWeek = new Date(
-          model.dates.today.getTime() + 7 * 24 * 60 * 60 * 1000
-        );
-        model.dates.twoWeeksFromNow = new Date(
-          model.dates.today.getTime() + 16 * 24 * 60 * 60 * 1000
-        );
-        /* Date input values transformed to last year
-         * For the case someone searches for a date after
-         * 16 days from now, which will be covered by
-         * historical fetch from weatherbit API
-         */
-        model.dates.lastYearStartDate = new Date(model.input.startDate);
-        model.dates.lastYearEndDate = new Date(model.input.endDate);
-        model.dates.lastYearStartDate.setMonth(
-          model.dates.lastYearStartDate.getMonth() - 12
-        );
-        model.dates.lastYearEndDate.setMonth(
-          model.dates.lastYearEndDate.getMonth() - 12
-        );
-
-        /* Helper function to change the format from Date object to regular date
-        as in 'Tue Dec 24 2019 21:00:00 GMT-0300' to => 2019-12-24 */
-        const changeFormat = (date = '') => {
-          const dd = String(date.getDate()).padStart(2, '0');
-          const mm = String(date.getMonth() + 1).padStart(2, '0'); // January is 0!
-          const yyyy = date.getFullYear();
-          let convertedDate = date;
-          convertedDate = `${yyyy}-${mm}-${dd}`;
-          return convertedDate;
-        };
-
-        // Formatting today's date
-        model.dates.today = changeFormat(model.dates.today);
-        // Formatting next weeks's date
-        model.dates.nextWeek = changeFormat(model.dates.nextWeek);
-        // Formatting 16 days from now
-        model.dates.twoWeeksFromNow = changeFormat(model.dates.twoWeeksFromNow);
-        // Changing the format of last year dates
-        model.dates.lastYearStartDate = changeFormat(
-          model.dates.lastYearStartDate
-        );
-        model.dates.lastYearEndDate = changeFormat(model.dates.lastYearEndDate);
-
-        /* Converted today, start date and end date to calculate countdowns
-         * To a format like this: Tue Dec 24 2019 21:00:00 GMT-0300
-         */
-        model.converted.convertedToday = new Date();
-        model.converted.convertedStartDate = new Date(model.input.startDate);
-        model.converted.convertedEndDate = new Date(model.input.endDate);
-
-        // Calculating the length of the trip
-        model.differenceDays.diffTimeTrip = Math.abs(
-          model.converted.convertedEndDate - model.converted.convertedStartDate
-        );
-        model.differenceDays.diffDaysTrip = Math.ceil(
-          model.differenceDays.diffTimeTrip / (1000 * 60 * 60 * 24)
-        );
-
-        // Calculating the difference in days between today and the start date
-        model.differenceDays.diffTimeCountdown = Math.abs(
-          model.converted.convertedStartDate - model.converted.convertedToday
-        );
-        model.differenceDays.diffDaysCountdown = Math.ceil(
-          model.differenceDays.diffTimeCountdown / (1000 * 60 * 60 * 24)
-        );
-      },
       mainFunction() {
         if (storageAvailable('localStorage')) {
           preFillTripData();
@@ -139,7 +63,6 @@ const getTravelResults = document.addEventListener(
           if (storageAvailable('localStorage')) {
             saveTripData();
           }
-          this.setDates();
           apis
             .geonamesApi()
             .then(() => apis.weatherbitApi())
@@ -195,89 +118,19 @@ const getTravelResults = document.addEventListener(
         const data = await req.json();
         model.apiData.apiKey = data.weatherKey;
 
-        // Getting the API data //
-
-        // If the trip between next week and 16 days
-        if (
-          model.input.startDate > model.dates.nextWeek &&
-          model.input.startDate <= model.dates.twoWeeksFromNow
-        ) {
-          await controller.getData(
-            `https://api.weatherbit.io/v2.0/forecast/daily?lat=${model.apiData.latitude}&lon=${model.apiData.longitude}&key=${model.apiData.apiKey}`
-          );
-          // Getting only the data that I will use in the new object
-          model.apiData.weatherResponse = {
-            city_name: model.apiData.apiResponse.city_name,
-            country_code: model.apiData.apiResponse.country_code,
-            // Getting the array n. 8 because it is on the middle of 16
-            temp: model.apiData.apiResponse.data[8].temp,
-            // Simulating apparent temperature, since it is not given in this response
-            app_temp: (
-              (model.apiData.apiResponse.data[8].app_max_temp +
-                // eslint-disable-next-line prettier/prettier
-                model.apiData.apiResponse.data[10].app_min_temp) /
-              2
-            ).toFixed(1),
-            weather: {
-              description:
-                model.apiData.apiResponse.data[8].weather.description,
-            },
-          };
-          return model.apiData.weatherResponse;
-          /* In case the trip is after 16 days from now
-           * In this case, this API limits to one request per day in the free version
-           * It will fetch the weather from the same date last year
-           */
-        } else if (model.input.startDate > model.dates.twoWeeksFromNow) {
-          try {
-            await controller.getData(
-              `https://api.weatherbit.io/v2.0/history/hourly?lat=${model.apiData.latitude}&lon=${model.apiData.longitude}&start_date=${model.dates.lastYearStartDate}&end_date=${model.dates.lastYearEndDate}&key=${model.apiData.apiKey}`
-            );
-            // Getting only the data that I will use in the new object
-            model.apiData.weatherResponse = {
-              city_name: model.apiData.apiResponse.city_name,
-              country_code: model.apiData.apiResponse.country_code,
-              temp: model.apiData.apiResponse.data.temp,
-              app_temp: model.apiData.apiResponse.data.app_temp,
-              weather: {
-                description:
-                  model.apiData.apiResponse.data[8].weather.description,
-              },
-            };
-            return model.apiData.weatherResponse;
-          } catch (error) {
-            await controller.getData(
-              `https://api.weatherbit.io/v2.0/current?lat=${model.apiData.latitude}&lon=${model.apiData.longitude}&key=${model.apiData.apiKey}`
-            );
-            model.apiData.weatherResponse = {
-              city_name: model.apiData.apiResponse.data[0].city_name,
-              country_code: model.apiData.apiResponse.data[0].country_code,
-              temp: model.apiData.apiResponse.data[0].temp,
-              app_temp: model.apiData.apiResponse.data[0].app_temp,
-              weather: {
-                description:
-                  model.apiData.apiResponse.data[0].weather.description,
-              },
-            };
-            return model.apiData.weatherResponse;
-          }
-          // If the trip is this week
-        } else {
-          await controller.getData(
-            `https://api.weatherbit.io/v2.0/current?lat=${model.apiData.latitude}&lon=${model.apiData.longitude}&key=${model.apiData.apiKey}`
-          );
-          model.apiData.weatherResponse = {
-            city_name: model.apiData.apiResponse.data[0].city_name,
-            country_code: model.apiData.apiResponse.data[0].country_code,
-            temp: model.apiData.apiResponse.data[0].temp,
-            app_temp: model.apiData.apiResponse.data[0].app_temp,
-            weather: {
-              description:
-                model.apiData.apiResponse.data[0].weather.description,
-            },
-          };
-          return model.apiData.weatherResponse;
-        }
+        await controller.getData(
+          `https://api.weatherbit.io/v2.0/current?lat=${model.apiData.latitude}&lon=${model.apiData.longitude}&key=${model.apiData.apiKey}`
+        );
+        model.apiData.weatherResponse = {
+          city_name: model.apiData.apiResponse.data[0].city_name,
+          country_code: model.apiData.apiResponse.data[0].country_code,
+          temp: model.apiData.apiResponse.data[0].temp,
+          app_temp: model.apiData.apiResponse.data[0].app_temp,
+          weather: {
+            description: model.apiData.apiResponse.data[0].weather.description,
+          },
+        };
+        return model.apiData.weatherResponse;
       },
 
       /**
